@@ -1,10 +1,47 @@
 import { useState } from 'react';
 import Link from 'next/link';
-import { getAllProducts } from '../utils/shopify';
+// Modificado para importar las funciones de checkout necesarias
+import { getAllProducts, createCheckout, addLineItemsToCheckout } from '../utils/shopify';
 
 export default function Home({ products = [] }) {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [carritoAbierto, setCarritoAbierto] = useState(false);
+  // Estado para controlar el indicador de carga durante el proceso de pago
+  const [comprandoId, setComprandoId] = useState(null);
+
+  // Función interna para generar la sesión de pago real en Shopify
+  const handleCompraInmediata = async (variantId) => {
+    if (!variantId) {
+      alert("Este producto no tiene variantes válidas en Shopify.");
+      return;
+    }
+
+    try {
+      setComprandoId(variantId);
+
+      // 1. Crea la sesión de checkout vacía
+      const checkout = await createCheckout();
+
+      if (checkout && checkout.id) {
+        // 2. Agrega la variante del producto seleccionado al checkout
+        const checkoutActualizado = await addLineItemsToCheckout(checkout.id, variantId, 1);
+
+        if (checkoutActualizado && checkoutActualizado.webUrl) {
+          // 3. Redirecciona al usuario de manera segura a la pasarela de pagos oficial
+          window.location.href = checkoutActualizado.webUrl;
+        } else {
+          alert("No se pudo obtener la URL de pago de Shopify.");
+        }
+      } else {
+        alert("Error al inicializar la pasarela de Shopify.");
+      }
+    } catch (error) {
+      console.error("Error en el proceso de pago:", error);
+      alert("Hubo un inconveniente al conectar con el sistema de pagos.");
+    } finally {
+      setComprandoId(null);
+    }
+  };
 
   return (
     <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif', minHeight: '100vh', backgroundColor: '#fcfcfc', color: '#111' }}>
@@ -155,6 +192,8 @@ export default function Home({ products = [] }) {
               {products.map((product) => {
                 const image = product.images?.edges?.[0]?.node;
                 const price = product.priceRange?.minVariantPrice;
+                // Extrae el Variant ID necesario para el checkout de Shopify
+                const variantId = product.variants?.edges?.[0]?.node?.id;
 
                 return (
                   <div key={product.id} className="product-card" style={{ 
@@ -191,22 +230,24 @@ export default function Home({ products = [] }) {
                         </span>
                       </div>
                       
-                      <Link 
-                        href={`/products/${product.handle}`}
+                      {/* Botón interactivo modificado para gatillar la pasarela de pagos real */}
+                      <button 
+                        onClick={() => handleCompraInmediata(variantId)}
+                        disabled={comprandoId === variantId}
                         style={{ 
-                          backgroundColor: '#001122', 
+                          backgroundColor: comprandoId === variantId ? '#555555' : '#001122', 
                           color: '#fff', 
-                          textDecoration: 'none',
+                          border: 'none',
                           padding: '10px 18px', 
                           borderRadius: '10px', 
                           fontSize: '0.88rem',
                           fontWeight: '600',
                           transition: 'background-color 0.2s ease',
-                          cursor: 'pointer' 
+                          cursor: comprandoId === variantId ? 'not-allowed' : 'pointer' 
                         }}
                       >
-                        Ver detalles
-                      </Link>
+                        {comprandoId === variantId ? 'Procesando...' : 'Comprar ahora'}
+                      </button>
                     </div>
                   </div>
                 );

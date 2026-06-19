@@ -39,6 +39,14 @@ export async function getAllProducts() {
                 }
               }
             }
+            # ---> AGREGA ESTO: Necesitamos el ID de la variante para poder venderlo
+            variants(first: 1) {
+              edges {
+                node {
+                  id
+                }
+              }
+            }
             priceRange {
               minVariantPrice {
                 amount
@@ -52,8 +60,6 @@ export async function getAllProducts() {
   `;
 
   const response = await shopifyFetch({ query });
-  
-  // Convertimos la estructura de bordes de GraphQL en un array plano fácil de mapear
   return response.data?.products?.edges.map(edge => edge.node) || [];
 }
 
@@ -85,4 +91,57 @@ export async function getProductByHandle(handle) {
   
   const response = await shopifyFetch({ query, variables: { handle } });
   return response.data?.product || null;
+}
+
+// 4. EXPORTACIÓN: Crear un nuevo Checkout (Carrito de pago) en Shopify
+export async function createCheckout() {
+  const query = `
+    mutation checkoutCreate($input: CheckoutCreateInput!) {
+      checkoutCreate(input: $input) {
+        checkout {
+          id
+          webUrl
+        }
+        checkoutUserErrors {
+          code
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  const variables = {
+    input: {}
+  };
+
+  const response = await shopifyFetch({ query, variables });
+  return response.data?.checkoutCreate?.checkout || null;
+}
+
+// 5. EXPORTACIÓN: Añadir un producto al Checkout y obtener la URL de pago real
+export async function addLineItemsToCheckout(checkoutId, variantId, quantity = 1) {
+  const query = `
+    mutation checkoutLineItemsAdd($checkoutId: ID!, $lineItems: [CheckoutLineItemInput!]!) {
+      checkoutLineItemsAdd(checkoutId: $checkoutId, lineItems: $lineItems) {
+        checkout {
+          id
+          webUrl
+        }
+        checkoutUserErrors {
+          code
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  const variables = {
+    checkoutId,
+    lineItems: [{ variantId, quantity }]
+  };
+
+  const response = await shopifyFetch({ query, variables });
+  return response.data?.checkoutLineItemsAdd?.checkout || null;
 }
