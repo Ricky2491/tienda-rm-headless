@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { getAllProducts } from '../utils/shopify';
 
 export default function Home({ products }) {
@@ -18,7 +19,7 @@ export default function Home({ products }) {
               const price = product.priceRange.minVariantPrice;
 
               return (
-                <div key={product.id} style={{ border: '1px solid #eaeaea', borderRadius: '8px', padding: '15px', display: 'flex', flexDirection: 'column', justifyContent: 'between' }}>
+                <div key={product.id} style={{ border: '1px solid #eaeaea', borderRadius: '8px', padding: '15px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                   {image ? (
                     <img src={image.url} alt={image.altText || product.title} style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '4px' }} />
                   ) : (
@@ -30,9 +31,22 @@ export default function Home({ products }) {
                     <span style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#000' }}>
                       {parseFloat(price.amount).toFixed(2)} {price.currencyCode}
                     </span>
-                    <button style={{ backgroundColor: '#111', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: '4px', cursor: 'pointer' }}>
+                    
+                    {/* CAMBIO CLAVE AQUÍ: Se cambió button por Link dinámico basado en el handle */}
+                    <Link 
+                      href={`/products/${product.handle}`}
+                      style={{ 
+                        backgroundColor: '#111', 
+                        color: '#fff', 
+                        textDecoration: 'none',
+                        padding: '8px 12px', 
+                        borderRadius: '4px', 
+                        fontSize: '0.9rem',
+                        cursor: 'pointer' 
+                      }}
+                    >
                       Ver Producto
-                    </button>
+                    </Link>
                   </div>
                 </div>
               );
@@ -44,7 +58,6 @@ export default function Home({ products }) {
   );
 }
 
-// Esta función de Next.js renderiza los productos del lado del servidor (SSR) para velocidad máxima
 export async function getServerSideProps() {
   const products = await getAllProducts();
   return {
