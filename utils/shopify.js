@@ -39,7 +39,6 @@ export async function getAllProducts() {
                 }
               }
             }
-            # ---> AGREGA ESTO: Necesitamos el ID de la variante para poder venderlo
             variants(first: 1) {
               edges {
                 node {
@@ -93,7 +92,7 @@ export async function getProductByHandle(handle) {
   return response.data?.product || null;
 }
 
-// 4. EXPORTACIÓN ACTUALIZADA: Crear una sesión de carrito moderno en Shopify
+// 4. EXPORTACIÓN: Crear una sesión de carrito seguro en Shopify
 export async function createCheckout() {
   const query = `
     mutation {
@@ -117,18 +116,18 @@ export async function createCheckout() {
     }
     
     const cart = response.data?.cartCreate?.cart;
-    // Se retorna emulando la estructura anterior para mantener compatibilidad con tu index.js
+    // Retorna manteniendo compatibilidad de llaves { id, webUrl } requeridas por tu index.js
     return cart ? { id: cart.id, webUrl: cart.checkoutUrl } : null;
   } catch (error) {
-    console.error("Error crítico creando el checkout mediante Cart API:", error);
+    console.error("Error crítico creando el carrito:", error);
     return null;
   }
 }
 
-// 5. EXPORTACIÓN ACTUALIZADA: Añadir un producto al carrito y retornar la URL segura de pago
+// 5. EXPORTACIÓN: Añadir producto usando el tipo correcto (CartLineInput!) exigido por la API 2024-01
 export async function addLineItemsToCheckout(cartId, variantId, quantity = 1) {
   const query = `
-    mutation cartLinesAdd($cartId: ID!, $lines: [BaseCartLineInput!]!) {
+    mutation cartLinesAdd($cartId: ID!, $lines: [CartLineInput!]!) {
       cartLinesAdd(cartId: $cartId, lines: $lines) {
         cart {
           id
@@ -144,7 +143,7 @@ export async function addLineItemsToCheckout(cartId, variantId, quantity = 1) {
 
   const variables = {
     cartId,
-    lines: [{ merchandiseId: variantId, quantity }]
+    lines: [{ merchandiseId: variantId, quantity: parseInt(quantity, 10) }]
   };
 
   try {
@@ -154,10 +153,9 @@ export async function addLineItemsToCheckout(cartId, variantId, quantity = 1) {
     }
 
     const cart = response.data?.cartLinesAdd?.cart;
-    // Se retorna emulando la estructura anterior para mantener compatibilidad con tu index.js
     return cart ? { id: cart.id, webUrl: cart.checkoutUrl } : null;
   } catch (error) {
-    console.error("Error crítico añadiendo producto al checkout mediante Cart API:", error);
+    console.error("Error crítico añadiendo producto al carrito:", error);
     return null;
   }
 }
