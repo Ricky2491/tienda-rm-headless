@@ -93,17 +93,16 @@ export async function getProductByHandle(handle) {
   return response.data?.product || null;
 }
 
-// 4. EXPORTACIÓN: Crear un nuevo Checkout (Carrito de pago) en Shopify
+// 4. EXPORTACIÓN ACTUALIZADA: Crear una sesión de carrito moderno en Shopify
 export async function createCheckout() {
   const query = `
-    mutation checkoutCreate($input: CheckoutCreateInput!) {
-      checkoutCreate(input: $input) {
-        checkout {
+    mutation {
+      cartCreate(input: {}) {
+        cart {
           id
-          webUrl
+          checkoutUrl
         }
-        checkoutUserErrors {
-          code
+        userErrors {
           field
           message
         }
@@ -111,25 +110,31 @@ export async function createCheckout() {
     }
   `;
 
-  const variables = {
-    input: {}
-  };
-
-  const response = await shopifyFetch({ query, variables });
-  return response.data?.checkoutCreate?.checkout || null;
+  try {
+    const response = await shopifyFetch({ query });
+    if (response.errors || response.data?.cartCreate?.userErrors?.length > 0) {
+      console.error("❌ Error en cartCreate:", response.errors || response.data.cartCreate.userErrors);
+    }
+    
+    const cart = response.data?.cartCreate?.cart;
+    // Se retorna emulando la estructura anterior para mantener compatibilidad con tu index.js
+    return cart ? { id: cart.id, webUrl: cart.checkoutUrl } : null;
+  } catch (error) {
+    console.error("Error crítico creando el checkout mediante Cart API:", error);
+    return null;
+  }
 }
 
-// 5. EXPORTACIÓN: Añadir un producto al Checkout y obtener la URL de pago real
-export async function addLineItemsToCheckout(checkoutId, variantId, quantity = 1) {
+// 5. EXPORTACIÓN ACTUALIZADA: Añadir un producto al carrito y retornar la URL segura de pago
+export async function addLineItemsToCheckout(cartId, variantId, quantity = 1) {
   const query = `
-    mutation checkoutLineItemsAdd($checkoutId: ID!, $lineItems: [CheckoutLineItemInput!]!) {
-      checkoutLineItemsAdd(checkoutId: $checkoutId, lineItems: $lineItems) {
-        checkout {
+    mutation cartLinesAdd($cartId: ID!, $lines: [BaseCartLineInput!]!) {
+      cartLinesAdd(cartId: $cartId, lines: $lines) {
+        cart {
           id
-          webUrl
+          checkoutUrl
         }
-        checkoutUserErrors {
-          code
+        userErrors {
           field
           message
         }
@@ -138,10 +143,21 @@ export async function addLineItemsToCheckout(checkoutId, variantId, quantity = 1
   `;
 
   const variables = {
-    checkoutId,
-    lineItems: [{ variantId, quantity }]
+    cartId,
+    lines: [{ merchandiseId: variantId, quantity }]
   };
 
-  const response = await shopifyFetch({ query, variables });
-  return response.data?.checkoutLineItemsAdd?.checkout || null;
+  try {
+    const response = await shopifyFetch({ query, variables });
+    if (response.errors || response.data?.cartLinesAdd?.userErrors?.length > 0) {
+      console.error("❌ Error en cartLinesAdd:", response.errors || response.data.cartLinesAdd.userErrors);
+    }
+
+    const cart = response.data?.cartLinesAdd?.cart;
+    // Se retorna emulando la estructura anterior para mantener compatibilidad con tu index.js
+    return cart ? { id: cart.id, webUrl: cart.checkoutUrl } : null;
+  } catch (error) {
+    console.error("Error crítico añadiendo producto al checkout mediante Cart API:", error);
+    return null;
+  }
 }
