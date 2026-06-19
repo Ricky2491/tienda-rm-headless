@@ -208,7 +208,7 @@ export default function Home({ products = [] }) {
         </div>
       )}
 
-      {/* PANEL LATERAL DEL CARRITO (SIDEBAR SLIDE-OUT DINÁMICO) */}
+      {/* PANEL LATERAL DEL CARRITO (CORREGIDO: ALTURA CONTROLADA Y BOTÓN FIJO ABAJO) */}
       {carritoAbierto && (
         <div style={{ 
           position: 'fixed', 
@@ -216,7 +216,8 @@ export default function Home({ products = [] }) {
           right: 0, 
           width: '100%', 
           maxWidth: '420px', 
-          height: '100vh', 
+          height: '100vh',
+          maxHeight: '100vh',
           backgroundColor: '#fff', 
           boxShadow: '-10px 0 30px rgba(0,0,0,0.08)', 
           zIndex: 200, 
@@ -229,18 +230,18 @@ export default function Home({ products = [] }) {
             <button onClick={() => setCarritoAbierto(false)} style={{ background: '#f5f5f7', border: 'none', borderRadius: '50%', width: '32px', height: '32px', fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
           </div>
           
-          {/* Contenido Dinámico del Carrito */}
+          {/* Contenido Dinámico del Carrito (ZONA CON SCROLL EXCLUSIVO) */}
           <div style={{ flexGrow: 1, overflowY: 'auto', padding: '10px 0' }}>
             {carrito.length === 0 ? (
               <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#86868b' }}>
                 <span style={{ fontSize: '2.5rem', marginBottom: '16px' }}>🛍️</span>
-                <p style={{ margin: 0, fontSize: '1rem' }}>Tu carrito está vacío actualmene.</p>
+                <p style={{ margin: 0, fontSize: '1rem' }}>Tu carrito está vacío actualmente.</p>
               </div>
             ) : (
               carrito.map((item) => (
-                <div key={item.variantId} style={{ display: 'flex', gap: '16px', padding: '16px 0', borderBottom: '1px solid #f5f5f7', alignItems: 'center' }}>
+                <div key={item.variantId} style={{ display: 'flex', gap: '16px', padding: '16px 0', borderBottom: '1px solid #f5f5f7', alignItems: 'center', position: 'relative' }}>
                   <img src={item.image} alt={item.title} style={{ width: '70px', height: '70px', objectFit: 'contain', backgroundColor: '#fbfbfd', borderRadius: '8px', padding: '4px' }} />
-                  <div style={{ flexGrow: 1 }}>
+                  <div style={{ flexGrow: 1, paddingRight: '24px' }}>
                     <h4 style={{ margin: '0 0 4px 0', fontSize: '0.95rem', fontWeight: '600' }}>{item.title}</h4>
                     <span style={{ fontSize: '0.9rem', fontWeight: '700', display: 'block', marginBottom: '6px' }}>
                       {parseFloat(item.price?.amount).toFixed(2)} {item.price?.currencyCode}
@@ -252,14 +253,34 @@ export default function Home({ products = [] }) {
                       <button onClick={() => handleModificarCantidadCarrito(item.variantId, 1)} style={{ border: '1px solid #d2d2d7', backgroundColor: '#fff', borderRadius: '4px', width: '24px', height: '24px', cursor: 'pointer', fontWeight: '600' }}>+</button>
                     </div>
                   </div>
+                  {/* BOTÓN INTERNO DE ELIMINAR ITEM COMPLETAMENTE */}
+                  <button 
+                    onClick={() => handleModificarCantidadCarrito(item.variantId, -item.cantidad)}
+                    className="cart-remove-btn"
+                    style={{
+                      position: 'absolute',
+                      right: '4px',
+                      top: '16px',
+                      background: 'none',
+                      border: 'none',
+                      color: '#a1a1a6',
+                      cursor: 'pointer',
+                      fontSize: '1rem',
+                      fontWeight: '500',
+                      padding: '4px'
+                    }}
+                    title="Eliminar producto"
+                  >
+                    ✕
+                  </button>
                 </div>
               ))
             )}
           </div>
 
-          {/* Bloque de Cierre de Caja Unificado */}
+          {/* Bloque de Cierre de Caja Unificado (BLOQUE COMPLETAMENTE FIJO) */}
           {carrito.length > 0 && (
-            <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: '20px' }}>
+            <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: '20px', backgroundColor: '#fff' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', fontSize: '1.15rem', fontWeight: '700' }}>
                 <span>Subtotal:</span>
                 <span>{subtotalPrecio.toFixed(2)} {codigoMoneda}</span>
@@ -400,6 +421,11 @@ export default function Home({ products = [] }) {
           transform: translateY(-4px);
           box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.04) !important;
           border-color: #e2e2e7 !important;
+        }
+
+        /* Efecto hover interactivo para el nuevo botón eliminar */
+        .cart-remove-btn:hover {
+          color: #ff3b30 !important;
         }
 
         /* Lógica del Menú de Escritorio vs Móvil */
