@@ -1,45 +1,112 @@
 import { useState } from 'react';
 import Link from 'next/link';
-// Modificado para importar las funciones de checkout necesarias
-import { getAllProducts, createCheckout, addLineItemsToCheckout } from '../utils/shopify';
+// Se importa 'createCheckout' adaptado para recibir el lote completo de productos
+import { getAllProducts, createCheckout } from '../utils/shopify';
 
 export default function Home({ products = [] }) {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [carritoAbierto, setCarritoAbierto] = useState(false);
-  // Estado para controlar el indicador de carga durante el proceso de pago
-  const [comprandoId, setComprandoId] = useState(null);
+  // Estado para bloquear la pantalla/botón durante la llamada final de checkout
+  const [comprando, setComprando] = useState(false);
 
-  // Función interna para generar la sesión de pago real en Shopify
-  const handleCompraInmediata = async (variantId) => {
-    if (!variantId) {
-      alert("Este producto no tiene variantes válidas en Shopify.");
-      return;
-    }
+  // NUEVO: Estado del carrito de compras local interactivo
+  const [carrito, setCarrito] = useState([]);
+
+  // NUEVO: Estado para rastrear las cantidades seleccionadas en la cuadrícula de productos
+  const [cantidadesSelector, setCantidadesSelector] = useState({});
+
+  // Manejar el selector de cantidad (+ / -) de cada producto antes de agregarlo
+  const handleCambiarCantidadSelector = (productId, delta) => {
+    setCantidadesSelector((prev) => {
+      const cantidadActual = prev[productId] || 1;
+      const nuevaCantidad = cantidadActual + delta;
+      return { ...prev, [productId]: nuevaCantidad < 1 ? 1 : nuevaCantidad };
+    });
+  };
+
+  // NUEVO: Agregar productos acumulativos a la bolsa de compras local
+  const handleAgregarAlCarrito = (product, variantId) => {
+    if (!variantId) return alert("Este producto no posee variantes activas.");
+    
+    const cantidadAñadir = cantidadesSelector[product.id] || 1;
+
+    setCarrito((prevCarrito) => {
+      const itemExistente = prevCarrito.find((item) => item.variantId === variantId);
+      
+      if (itemExistente) {
+        return prevCarrito.map((item) =>
+          item.variantId === variantId
+            ? { ...item, cantidad: item.cantidad + cantidadAñadir }
+            : item
+        );
+      }
+
+      return [
+        ...prevCarrito,
+        {
+          id: product.id,
+          title: product.title,
+          image: product.images?.edges?.[0]?.node?.url,
+          price: product.priceRange?.minVariantPrice,
+          variantId: variantId,
+          cantidad: cantidadAñadir,
+        },
+      ];
+    });
+
+    // Limpiar el selector del producto respectivo volviéndolo a 1
+    setCantidadesSelector((prev) => ({ ...prev, [product.id]: 1 }));
+    // Desplegar el panel de compras lateral automáticamente para dar feedback al usuario
+    setCarritoAbierto(true);
+  };
+
+  // NUEVO: Modificar unidades o remover elementos directamente desde el Sidebar
+  const handleModificarCantidadCarrito = (variantId, delta) => {
+    setCarrito((prevCarrito) =>
+      prevCarrito
+        .map((item) => {
+          if (item.variantId === variantId) {
+            const nuevaCantidad = item.cantidad + delta;
+            return nuevaCantidad > 0 ? { ...item, cantidad: nuevaCantidad } : null;
+          }
+          return item;
+        })
+        .filter(Boolean)
+    );
+  };
+
+  // Cálculos dinámicos de los indicadores del Carrito
+  const totalArticulos = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+  const subtotalPrecio = carrito.reduce((sum, item) => sum + parseFloat(item.price?.amount || 0) * item.cantidad, 0);
+  const codigoMoneda = carrito[0]?.price?.currencyCode || 'USD';
+
+  // MODIFICADO: Generar la sesión transaccional unificada con métodos de pago reales de Shopify
+  const handleProcederAlPagoUnificado = async () => {
+    if (carrito.length === 0) return;
 
     try {
-      setComprandoId(variantId);
+      setComprando(true);
 
-      // 1. Crea la sesión de checkout vacía
-      const checkout = await createCheckout();
+      // Mapeamos los elementos de nuestro carrito al formato nativo exigido por la API de Shopify
+      const lineasCheckout = carrito.map((item) => ({
+        merchandiseId: item.variantId,
+        quantity: parseInt(item.cantidad, 10),
+      }));
 
-      if (checkout && checkout.id) {
-        // 2. Agrega la variante del producto seleccionado al checkout
-        const checkoutActualizado = await addLineItemsToCheckout(checkout.id, variantId, 1);
+      // Invocamos la mutación unificada de lote
+      const checkout = await createCheckout(lineasCheckout);
 
-        if (checkoutActualizado && checkoutActualizado.webUrl) {
-          // 3. Redirecciona al usuario de manera segura a la pasarela de pagos oficial
-          window.location.href = checkoutActualizado.webUrl;
-        } else {
-          alert("No se pudo obtener la URL de pago de Shopify.");
-        }
+      if (checkout && checkout.webUrl) {
+        // Redirección directa hacia la pasarela global de tu pasarela con opciones plenas de pago
+        window.location.href = checkout.webUrl;
       } else {
-        alert("Error al inicializar la pasarela de Shopify.");
+        alert("No se pudo estructurar el enlace transaccional unificado.");
       }
     } catch (error) {
-      console.error("Error en el proceso de pago:", error);
+      console.error("Error procesando pago unificado:", error);
       alert("Hubo un inconveniente al conectar con el sistema de pagos.");
     } finally {
-      setComprandoId(null);
+      setComprando(false);
     }
   };
 
@@ -75,7 +142,7 @@ export default function Home({ products = [] }) {
 
         {/* Botones de Acción */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {/* Carrito */}
+          {/* Carrito - Ahora muestra el conteo acumulativo real */}
           <button 
             onClick={() => setCarritoAbierto(true)} 
             style={{ 
@@ -99,7 +166,7 @@ export default function Home({ products = [] }) {
               padding: '2px 8px', 
               fontSize: '0.75rem',
               fontWeight: '600'
-            }}>0</span>
+            }}>{totalArticulos}</span>
           </button>
           
           {/* Botón Hamburguesa Móvil */}
@@ -141,7 +208,7 @@ export default function Home({ products = [] }) {
         </div>
       )}
 
-      {/* PANEL LATERAL DEL CARRITO (SIDEBAR SLIDE-OUT) */}
+      {/* PANEL LATERAL DEL CARRITO (SIDEBAR SLIDE-OUT DINÁMICO) */}
       {carritoAbierto && (
         <div style={{ 
           position: 'fixed', 
@@ -161,13 +228,62 @@ export default function Home({ products = [] }) {
             <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: '700' }}>Tu bolsa de compras</h2>
             <button onClick={() => setCarritoAbierto(false)} style={{ background: '#f5f5f7', border: 'none', borderRadius: '50%', width: '32px', height: '32px', fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
           </div>
-          <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#86868b' }}>
-            <span style={{ fontSize: '2.5rem', marginBottom: '16px' }}>🛍️</span>
-            <p style={{ margin: 0, fontSize: '1rem' }}>Tu carrito está vacío actualmene.</p>
+          
+          {/* Contenido Dinámico del Carrito */}
+          <div style={{ flexGrow: 1, overflowY: 'auto', padding: '10px 0' }}>
+            {carrito.length === 0 ? (
+              <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#86868b' }}>
+                <span style={{ fontSize: '2.5rem', marginBottom: '16px' }}>🛍️</span>
+                <p style={{ margin: 0, fontSize: '1rem' }}>Tu carrito está vacío actualmene.</p>
+              </div>
+            ) : (
+              carrito.map((item) => (
+                <div key={item.variantId} style={{ display: 'flex', gap: '16px', padding: '16px 0', borderBottom: '1px solid #f5f5f7', alignItems: 'center' }}>
+                  <img src={item.image} alt={item.title} style={{ width: '70px', height: '70px', objectFit: 'contain', backgroundColor: '#fbfbfd', borderRadius: '8px', padding: '4px' }} />
+                  <div style={{ flexGrow: 1 }}>
+                    <h4 style={{ margin: '0 0 4px 0', fontSize: '0.95rem', fontWeight: '600' }}>{item.title}</h4>
+                    <span style={{ fontSize: '0.9rem', fontWeight: '700', display: 'block', marginBottom: '6px' }}>
+                      {parseFloat(item.price?.amount).toFixed(2)} {item.price?.currencyCode}
+                    </span>
+                    {/* Controles internos del Carrito */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <button onClick={() => handleModificarCantidadCarrito(item.variantId, -1)} style={{ border: '1px solid #d2d2d7', backgroundColor: '#fff', borderRadius: '4px', width: '24px', height: '24px', cursor: 'pointer', fontWeight: '600' }}>-</button>
+                      <span style={{ fontSize: '0.9rem', fontWeight: '600', minWidth: '16px', textAlign: 'center' }}>{item.cantidad}</span>
+                      <button onClick={() => handleModificarCantidadCarrito(item.variantId, 1)} style={{ border: '1px solid #d2d2d7', backgroundColor: '#fff', borderRadius: '4px', width: '24px', height: '24px', cursor: 'pointer', fontWeight: '600' }}>+</button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
-          <button style={{ backgroundColor: '#ccc', color: '#fff', border: 'none', padding: '16px', borderRadius: '12px', width: '100%', fontSize: '1rem', fontWeight: '600', cursor: 'not-allowed' }} disabled>
-            Proceder al pago
-          </button>
+
+          {/* Bloque de Cierre de Caja Unificado */}
+          {carrito.length > 0 && (
+            <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', fontSize: '1.15rem', fontWeight: '700' }}>
+                <span>Subtotal:</span>
+                <span>{subtotalPrecio.toFixed(2)} {codigoMoneda}</span>
+              </div>
+              <button 
+                onClick={handleProcederAlPagoUnificado}
+                disabled={comprando}
+                style={{ 
+                  backgroundColor: comprando ? '#555555' : '#0066cc', 
+                  color: '#fff', 
+                  border: 'none', 
+                  padding: '16px', 
+                  borderRadius: '12px', 
+                  width: '100%', 
+                  fontSize: '1rem', 
+                  fontWeight: '600', 
+                  cursor: comprando ? 'not-allowed' : 'pointer',
+                  transition: 'background-color 0.2s ease'
+                }}
+              >
+                {comprando ? 'Conectando a caja...' : 'Proceder al pago'}
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -181,6 +297,7 @@ export default function Home({ products = [] }) {
           <p style={{ color: '#68686e', fontSize: '1.1rem', margin: 0, maxWidth: '600px', margin: '0 auto' }}>Una experiencia ultra rápida conectada directamente mediante la API Headless de Shopify.</p>
         </header>
 
+        <div style={{ padding: '40px 24px', maxWidth: '1200px', margin: '0 auto' }}>
         <main>
           {!products || products.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '80px 0', backgroundColor: '#fff', borderRadius: '16px', border: '1px solid #f0f0f0' }}>
@@ -192,8 +309,10 @@ export default function Home({ products = [] }) {
               {products.map((product) => {
                 const image = product.images?.edges?.[0]?.node;
                 const price = product.priceRange?.minVariantPrice;
-                // Extrae el Variant ID necesario para el checkout de Shopify
                 const variantId = product.variants?.edges?.[0]?.node?.id;
+                
+                // Cantidad seleccionada actual para esta tarjeta específica (por defecto 1)
+                const cantidadElegida = cantidadesSelector[product.id] || 1;
 
                 return (
                   <div key={product.id} className="product-card" style={{ 
@@ -217,10 +336,20 @@ export default function Home({ products = [] }) {
 
                     {/* Título e Info */}
                     <h3 style={{ fontSize: '1.1rem', fontWeight: '600', margin: '0 0 8px 0', lineHeight: '1.4', color: '#111' }}>{product.title}</h3>
-                    <p style={{ fontSize: '0.88rem', color: '#68686e', flexGrow: 1, margin: '0 0 20px 0', height: '40px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: '1.5' }}>
+                    <p style={{ fontSize: '0.88rem', color: '#68686e', flexGrow: 1, margin: '0 0 16px 0', height: '40px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: '1.5' }}>
                       {product.description || 'Sin descripción detallada disponible.'}
                     </p>
                     
+                    {/* SELECTOR DE UNIDADES ADAPTADO POR TARJETA */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', backgroundColor: '#f5f5f7', padding: '6px 12px', borderRadius: '10px', marginBottom: '16px', justifyContent: 'space-between' }}>
+                      <span style={{ fontSize: '0.82rem', color: '#666', fontWeight: '500' }}>Cantidad:</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <button onClick={() => handleCambiarCantidadSelector(product.id, -1)} style={{ border: 'none', background: '#fff', borderRadius: '6px', width: '28px', height: '28px', cursor: 'pointer', fontWeight: '700', fontSize: '0.95rem' }}>-</button>
+                        <span style={{ fontSize: '0.95rem', fontWeight: '700', minWidth: '16px', textAlign: 'center' }}>{cantidadElegida}</span>
+                        <button onClick={() => handleCambiarCantidadSelector(product.id, 1)} style={{ border: 'none', background: '#fff', borderRadius: '6px', width: '28px', height: '28px', cursor: 'pointer', fontWeight: '700', fontSize: '0.95rem' }}>+</button>
+                      </div>
+                    </div>
+
                     {/* Fila de Precio y Acción */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '12px', borderTop: '1px solid #f5f5f7' }}>
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -230,12 +359,11 @@ export default function Home({ products = [] }) {
                         </span>
                       </div>
                       
-                      {/* Botón interactivo modificado para gatillar la pasarela de pagos real */}
+                      {/* Botón adaptado para acumular el producto en la bolsa de compras local */}
                       <button 
-                        onClick={() => handleCompraInmediata(variantId)}
-                        disabled={comprandoId === variantId}
+                        onClick={() => handleAgregarAlCarrito(product, variantId)}
                         style={{ 
-                          backgroundColor: comprandoId === variantId ? '#555555' : '#001122', 
+                          backgroundColor: '#001122', 
                           color: '#fff', 
                           border: 'none',
                           padding: '10px 18px', 
@@ -243,10 +371,10 @@ export default function Home({ products = [] }) {
                           fontSize: '0.88rem',
                           fontWeight: '600',
                           transition: 'background-color 0.2s ease',
-                          cursor: comprandoId === variantId ? 'not-allowed' : 'pointer' 
+                          cursor: 'pointer' 
                         }}
                       >
-                        {comprandoId === variantId ? 'Procesando...' : 'Comprar ahora'}
+                        Añadir a bolsa
                       </button>
                     </div>
                   </div>
@@ -255,6 +383,7 @@ export default function Home({ products = [] }) {
             </div>
           )}
         </main>
+      </div>
       </div>
 
       {/* CÓDIGO CSS INLINE COMPLEMENTARIO PARA COMPORTAMIENTO RESPONSIVE */}

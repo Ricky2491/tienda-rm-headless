@@ -93,10 +93,10 @@ export async function getProductByHandle(handle) {
 }
 
 // 4. EXPORTACIÓN: Crear una sesión de carrito seguro en Shopify
-export async function createCheckout() {
+export async function createCheckout(lineItems = []) {
   const query = `
-    mutation {
-      cartCreate(input: {}) {
+    mutation cartCreate($input: CartInput!) {
+      cartCreate(input: $input) {
         cart {
           id
           checkoutUrl
@@ -109,17 +109,23 @@ export async function createCheckout() {
     }
   `;
 
+  // Se estructuran las variantes y cantidades agregadas dinámicamente
+  const variables = {
+    input: {
+      lines: lineItems
+    }
+  };
+
   try {
-    const response = await shopifyFetch({ query });
+    const response = await shopifyFetch({ query, variables });
     if (response.errors || response.data?.cartCreate?.userErrors?.length > 0) {
-      console.error("❌ Error en cartCreate:", response.errors || response.data.cartCreate.userErrors);
+      console.error("❌ Error en cartCreate unificado:", response.errors || response.data.cartCreate.userErrors);
     }
     
     const cart = response.data?.cartCreate?.cart;
-    // Retorna manteniendo compatibilidad de llaves { id, webUrl } requeridas por tu index.js
     return cart ? { id: cart.id, webUrl: cart.checkoutUrl } : null;
   } catch (error) {
-    console.error("Error crítico creando el carrito:", error);
+    console.error("Error crítico en checkout unificado:", error);
     return null;
   }
 }
