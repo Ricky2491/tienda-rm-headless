@@ -133,7 +133,7 @@ export default function Home({ products = [] }) {
           <Link href="/" style={{ color: '#000', textDecoration: 'none' }}>Tienda RM</Link>
         </h1>
 
-        {/* Menú de Escritorio (Oculto dinámicamente mediante CSS básico abajo) */}
+        {/* Menú de Escritorio */}
         <div className="desktop-nav" style={{ display: 'flex', gap: '32px' }}>
           <Link href="/" style={{ color: '#111', textDecoration: 'none', fontSize: '0.95rem', fontWeight: '500' }}>Inicio</Link>
           <Link href="#" style={{ color: '#666', textDecoration: 'none', fontSize: '0.95rem', fontWeight: '500' }}>Colecciones</Link>
@@ -142,7 +142,7 @@ export default function Home({ products = [] }) {
 
         {/* Botones de Acción */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {/* Carrito - Ahora muestra el conteo acumulativo real */}
+          {/* Carrito */}
           <button 
             onClick={() => setCarritoAbierto(true)} 
             style={{ 
@@ -187,7 +187,7 @@ export default function Home({ products = [] }) {
         </div>
       </nav>
 
-      {/* MENÚ MÓVIL DESPLEGABLE CON ANIMACIÓN SIMULADA */}
+      {/* MENÚ MÓVIL DESPLEGABLE */}
       {menuAbierto && (
         <div style={{ 
           backgroundColor: '#fff', 
@@ -208,20 +208,21 @@ export default function Home({ products = [] }) {
         </div>
       )}
 
-      {/* PANEL LATERAL DEL CARRITO COMPLETAMENTE RESPONSIVO */}
+      {/* PANEL LATERAL DEL CARRITO */}
       {carritoAbierto && (
+        /* MODIFICADO: Se removieron propiedades de ancho en línea redundantes para que el CSS de abajo tome el control absoluto */
         <div className="bolsa-compras-sidebar" style={{ 
           position: 'fixed', 
           top: 0, 
           right: 0, 
           height: '100vh',
-          height: '100dvh', /* Ajuste responsivo avanzado para el área visible en navegadores móviles */
+          height: '100dvh',
           maxHeight: '100vh',
           maxHeight: '100dvh',
           backgroundColor: '#fff', 
           boxShadow: '-10px 0 30px rgba(0,0,0,0.08)', 
           zIndex: 200, 
-          padding: '24px', /* Reducido levemente para optimizar espacio en smartphones */
+          padding: '24px', 
           display: 'flex', 
           flexDirection: 'column',
           boxSizing: 'border-box'
@@ -232,7 +233,7 @@ export default function Home({ products = [] }) {
             <button onClick={() => setCarritoAbierto(false)} style={{ background: '#f5f5f7', border: 'none', borderRadius: '50%', width: '36px', height: '36px', fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
           </div>
           
-          {/* Contenido Dinámico con Clase de Scroll Moderno */}
+          {/* Contenido Dinámico con Scroll */}
           <div className="bolsa-productos-scroll" style={{ flexGrow: 1, overflowY: 'auto', padding: '10px 2px 10px 0', minHeight: 0 }}>
             {carrito.length === 0 ? (
               <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#86868b' }}>
@@ -243,7 +244,7 @@ export default function Home({ products = [] }) {
               carrito.map((item) => (
                 <div key={item.variantId} style={{ display: 'flex', gap: '14px', padding: '16px 0', borderBottom: '1px solid #f5f5f7', alignItems: 'center', position: 'relative' }}>
                   <img src={item.image} alt={item.title} style={{ width: '65px', height: '65px', objectFit: 'contain', backgroundColor: '#fbfbfd', borderRadius: '8px', padding: '4px', flexShrink: 0 }} />
-                  <div style={{ flexGrow: 1, paddingRight: '28px', minWidth: 0 }}> {/* minWidth: 0 vital para evitar que textos muy largos ensanchen el flexbox lateral */}
+                  <div style={{ flexGrow: 1, paddingRight: '28px', minWidth: 0 }}>
                     <h4 style={{ margin: '0 0 4px 0', fontSize: '0.9rem', fontWeight: '600', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.title}</h4>
                     <span style={{ fontSize: '0.88rem', fontWeight: '700', display: 'block', marginBottom: '8px' }}>
                       {parseFloat(item.price?.amount).toFixed(2)} {item.price?.currencyCode}
@@ -255,7 +256,7 @@ export default function Home({ products = [] }) {
                       <button onClick={() => handleModificarCantidadCarrito(item.variantId, 1)} style={{ border: '1px solid #d2d2d7', backgroundColor: '#fff', borderRadius: '4px', width: '26px', height: '26px', cursor: 'pointer', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
                     </div>
                   </div>
-                  {/* BOTÓN INTERNO DE ELIMINAR ITEM COMPLETAMENTE */}
+                  {/* Botón Eliminar */}
                   <button 
                     onClick={() => handleModificarCantidadCarrito(item.variantId, -item.cantidad)}
                     className="cart-remove-btn"
@@ -279,7 +280,7 @@ export default function Home({ products = [] }) {
             )}
           </div>
 
-          {/* Bloque de Cierre de Caja Unificado (SIEMPRE VISIBLE ABAJO) */}
+          {/* Bloque de Cierre de Caja Unificado */}
           {carrito.length > 0 && (
             <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: '16px', backgroundColor: '#fff', flexShrink: 0, marginTop: 'auto' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '18px', fontSize: '1.1rem', fontWeight: '700' }}>
@@ -300,7 +301,7 @@ export default function Home({ products = [] }) {
                   fontWeight: '600', 
                   cursor: comprando ? 'not-allowed' : 'pointer',
                   transition: 'background-color 0.2s ease',
-                  WebkitAppearance: 'none' /* Limpieza estética obligatoria para dispositivos iOS */
+                  WebkitAppearance: 'none'
                 }}
               >
                 {comprando ? 'Conectando a caja...' : 'Proceder al pago'}
@@ -313,28 +314,23 @@ export default function Home({ products = [] }) {
       {/* CUERPO CENTRAL DE LA PÁGINA */}
       <div style={{ padding: '40px 24px', maxWidth: '1200px', margin: '0 auto' }}>
         
-        {/* Banner de Bienvenida Estilizado */}
         <header style={{ marginBottom: '48px', textAlign: 'center' }}>
           <span style={{ fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1.5px', color: '#0066cc', display: 'block', marginBottom: '8px' }}>Nueva Colección Disponible</span>
           <h2 style={{ fontSize: '2.5rem', fontWeight: '800', letterSpacing: '-1px', margin: '0 0 12px 0' }}>Explora el Catálogo Exclusivo</h2>
           <p style={{ color: '#68686e', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto' }}>Una experiencia ultra rápida conectada directamente mediante la API Headless de Shopify.</p>
         </header>
 
-        <div style={{ padding: '40px 24px', maxWidth: '1200px', margin: '0 auto' }}>
         <main>
           {!products || products.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '80px 0', backgroundColor: '#fff', borderRadius: '16px', border: '1px solid #f0f0f0' }}>
               <p style={{ color: '#86868b', fontSize: '1.1rem', margin: 0 }}>Cargando catálogo o sincronizando variables de entorno...</p>
             </div>
           ) : (
-            /* Ajuste Responsive de la Cuadrícula */
             <div className="products-grid">
               {products.map((product) => {
                 const image = product.images?.edges?.[0]?.node;
                 const price = product.priceRange?.minVariantPrice;
                 const variantId = product.variants?.edges?.[0]?.node?.id;
-                
-                // Cantidad seleccionada actual para esta tarjeta específica (por defecto 1)
                 const cantidadElegida = cantidadesSelector[product.id] || 1;
 
                 return (
@@ -348,7 +344,6 @@ export default function Home({ products = [] }) {
                     transition: 'transform 0.2s ease, box-shadow 0.2s ease',
                     boxShadow: '0 4px 6px -1px rgba(0,0,0,0.01), 0 2px 4px -1px rgba(0,0,0,0.01)'
                   }}>
-                    {/* Contenedor de Imagen */}
                     <div style={{ width: '100%', height: '240px', backgroundColor: '#fbfbfd', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
                       {image ? (
                         <img src={image.url} alt={image.altText || product.title} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '12px' }} />
@@ -357,13 +352,11 @@ export default function Home({ products = [] }) {
                       )}
                     </div>
 
-                    {/* Título e Info */}
                     <h3 style={{ fontSize: '1.1rem', fontWeight: '600', margin: '0 0 8px 0', lineHeight: '1.4', color: '#111' }}>{product.title}</h3>
                     <p style={{ fontSize: '0.88rem', color: '#68686e', flexGrow: 1, margin: '0 0 16px 0', height: '40px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: '1.5' }}>
                       {product.description || 'Sin descripción detallada disponible.'}
                     </p>
                     
-                    {/* SELECTOR DE UNIDADES ADAPTADO POR TARJETA */}
                     <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#f5f5f7', padding: '6px 12px', borderRadius: '10px', marginBottom: '16px', justifyContent: 'space-between' }}>
                       <span style={{ fontSize: '0.82rem', color: '#666', fontWeight: '500' }}>Cantidad:</span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -373,7 +366,6 @@ export default function Home({ products = [] }) {
                       </div>
                     </div>
 
-                    {/* Fila de Precio y Acción */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '12px', borderTop: '1px solid #f5f5f7' }}>
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <span style={{ fontSize: '0.75rem', color: '#86868b', textTransform: 'uppercase', fontWeight: '500' }}>Precio</span>
@@ -382,7 +374,6 @@ export default function Home({ products = [] }) {
                         </span>
                       </div>
                       
-                      {/* Botón adaptado para acumular el producto en la bolsa de compras local */}
                       <button 
                         onClick={() => handleAgregarAlCarrito(product, variantId)}
                         style={{ 
@@ -407,31 +398,27 @@ export default function Home({ products = [] }) {
           )}
         </main>
       </div>
-      </div>
 
-      {/* LÓGICA CSS RESPONSIVA COMPLETA Y MANEJO DE SCROLL ESTILIZADO */}
+      {/* 🌟 SECCIÓN DE ESTILOS CORREGIDA Y OPTIMIZADA */}
       <style jsx global>{`
-        /* 📱 COMPORTAMIENTO MEDIAS DE ANCHO DE LA BOLSA DE COMPRAS (RESPONSIVE) */
-        @media (max-width: 479px) {
+        /* 📱 MANEJO ABSOLUTO DE ANCHOS MEDIANTE CSS PURO */
+        @media (max-width: 540px) {
           .bolsa-compras-sidebar {
-            width: 100% !important; /* Ocupa toda la pantalla en smartphones */
-            maxWidth: 100% !important;
+            width: 100% !important; /* En móviles pequeños ocupa el 100% de la pantalla */
           }
         }
-        @media (min-width: 480px) and (max-width: 767px) {
+        @media (min-width: 541px) and (max-width: 1023px) {
           .bolsa-compras-sidebar {
-            width: 85% !important; /* Pantallas móviles intermedias */
-            maxWidth: 400px !important;
+            width: 380px !important; /* En Tablets mantiene un tamaño lateral compacto */
           }
         }
-        @media (min-width: 768px) {
+        @media (min-width: 1024px) {
           .bolsa-compras-sidebar {
-            width: 100% !important; 
-            maxWidth: 420px !important; /* Modos desktop y tablets */
+            width: 420px !important; /* 🌟 En PC de escritorio mide exactamente 420px (Mucho menos de la mitad de la pantalla) */
           }
         }
 
-        /* 🌟 ESTILIZADO DEL SCROLLBAR MODERNO (Limpio y minimalista) */
+        /* SCROLLBAR MINIMALISTA */
         .bolsa-productos-scroll::-webkit-scrollbar {
           width: 5px;
         }
@@ -452,7 +439,7 @@ export default function Home({ products = [] }) {
         .bolsa-productos-scroll {
           scrollbar-width: thin;
           scrollbar-color: #e2e2e7 #ffffff;
-          -webkit-overflow-scrolling: touch; /* Activa la inercia fluida al deslizar en pantallas iOS/Android */
+          -webkit-overflow-scrolling: touch;
         }
 
         /* Configuración de la cuadrícula adaptiva */
@@ -462,19 +449,17 @@ export default function Home({ products = [] }) {
           gap: 28px;
         }
 
-        /* Hover elegante para las tarjetas */
         .product-card:hover {
           transform: translateY(-4px);
           box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.04) !important;
           border-color: #e2e2e7 !important;
         }
 
-        /* Efecto hover interactivo para el nuevo botón eliminar */
         .cart-remove-btn:hover {
           color: #ff3b30 !important;
         }
 
-        /* Lógica del Menú de Escritorio vs Móvil */
+        /* Menú de Escritorio vs Móvil */
         @media (min-width: 768px) {
           .desktop-nav { display: flex !important; }
           .mobile-toggle { display: none !important; }
