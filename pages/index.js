@@ -191,7 +191,7 @@ export default function Home({ products = [] }) {
       {menuAbierto && (
         <div style={{ 
           backgroundColor: '#fff', 
-          borderBottom: '1px solid #f0f0f0', 
+          borderBottom: '1px solid #f0f0f0',  
           padding: '24px', 
           display: 'flex', 
           flexDirection: 'column', 
@@ -217,21 +217,22 @@ export default function Home({ products = [] }) {
           width: '100%', 
           maxWidth: '420px', 
           height: '100vh',
-          maxHeight: '100vh',
+          maxHeight: '100vh', /* Forzar a que nunca supere la pantalla */
           backgroundColor: '#fff', 
           boxShadow: '-10px 0 30px rgba(0,0,0,0.08)', 
           zIndex: 200, 
           padding: '30px', 
           display: 'flex', 
-          flexDirection: 'column' 
+          flexDirection: 'column' /* Distribución vertical exacta */
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f0f0f0', paddingBottom: '20px' }}>
+          {/* Encabezado fijo arriba */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f0f0f0', paddingBottom: '20px', flexShrink: 0 }}>
             <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: '700' }}>Tu bolsa de compras</h2>
             <button onClick={() => setCarritoAbierto(false)} style={{ background: '#f5f5f7', border: 'none', borderRadius: '50%', width: '32px', height: '32px', fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
           </div>
           
           {/* Contenido Dinámico del Carrito (ZONA CON SCROLL EXCLUSIVO) */}
-          <div style={{ flexGrow: 1, overflowY: 'auto', padding: '10px 0' }}>
+          <div style={{ flexGrow: 1, overflowY: 'auto', padding: '10px 0', minHeight: 0 }}>
             {carrito.length === 0 ? (
               <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#86868b' }}>
                 <span style={{ fontSize: '2.5rem', marginBottom: '16px' }}>🛍️</span>
@@ -278,9 +279,9 @@ export default function Home({ products = [] }) {
             )}
           </div>
 
-          {/* Bloque de Cierre de Caja Unificado (BLOQUE COMPLETAMENTE FIJO) */}
+          {/* Bloque de Cierre de Caja Unificado (BLOQUE COMPLETAMENTE FIJO ABAJO) */}
           {carrito.length > 0 && (
-            <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: '20px', backgroundColor: '#fff' }}>
+            <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: '20px', backgroundColor: '#fff', flexShrink: 0, marginTop: 'auto' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', fontSize: '1.15rem', fontWeight: '700' }}>
                 <span>Subtotal:</span>
                 <span>{subtotalPrecio.toFixed(2)} {codigoMoneda}</span>
@@ -315,7 +316,7 @@ export default function Home({ products = [] }) {
         <header style={{ marginBottom: '48px', textAlign: 'center' }}>
           <span style={{ fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1.5px', color: '#0066cc', display: 'block', marginBottom: '8px' }}>Nueva Colección Disponible</span>
           <h2 style={{ fontSize: '2.5rem', fontWeight: '800', letterSpacing: '-1px', margin: '0 0 12px 0' }}>Explora el Catálogo Exclusivo</h2>
-          <p style={{ color: '#68686e', fontSize: '1.1rem', margin: 0, maxWidth: '600px', margin: '0 auto' }}>Una experiencia ultra rápida conectada directamente mediante la API Headless de Shopify.</p>
+          <p style={{ color: '#68686e', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto' }}>Una experiencia ultra rápida conectada directamente mediante la API Headless de Shopify.</p>
         </header>
 
         <div style={{ padding: '40px 24px', maxWidth: '1200px', margin: '0 auto' }}>
@@ -362,7 +363,7 @@ export default function Home({ products = [] }) {
                     </p>
                     
                     {/* SELECTOR DE UNIDADES ADAPTADO POR TARJETA */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', backgroundColor: '#f5f5f7', padding: '6px 12px', borderRadius: '10px', marginBottom: '16px', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#f5f5f7', padding: '6px 12px', borderRadius: '10px', marginBottom: '16px', justifyContent: 'space-between' }}>
                       <span style={{ fontSize: '0.82rem', color: '#666', fontWeight: '500' }}>Cantidad:</span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <button onClick={() => handleCambiarCantidadSelector(product.id, -1)} style={{ border: 'none', background: '#fff', borderRadius: '6px', width: '28px', height: '28px', cursor: 'pointer', fontWeight: '700', fontSize: '0.95rem' }}>-</button>
@@ -388,7 +389,7 @@ export default function Home({ products = [] }) {
                           color: '#fff', 
                           border: 'none',
                           padding: '10px 18px', 
-                          borderRadius: '10px', 
+                          borderRadius: '10px',  
                           fontSize: '0.88rem',
                           fontWeight: '600',
                           transition: 'background-color 0.2s ease',
