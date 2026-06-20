@@ -208,7 +208,7 @@ export default function Home({ products = [] }) {
         </div>
       )}
 
-      {/* PANEL LATERAL DEL CARRITO (CORREGIDO: ALTURA CONTROLADA Y BOTÓN FIJO ABAJO) */}
+      {/* PANEL LATERAL DEL CARRITO */}
       {carritoAbierto && (
         <div style={{ 
           position: 'fixed', 
@@ -217,13 +217,13 @@ export default function Home({ products = [] }) {
           width: '100%', 
           maxWidth: '420px', 
           height: '100vh',
-          maxHeight: '100vh', /* Forzar a que nunca supere la pantalla */
+          maxHeight: '100vh',
           backgroundColor: '#fff', 
           boxShadow: '-10px 0 30px rgba(0,0,0,0.08)', 
           zIndex: 200, 
           padding: '30px', 
           display: 'flex', 
-          flexDirection: 'column' /* Distribución vertical exacta */
+          flexDirection: 'column'
         }}>
           {/* Encabezado fijo arriba */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f0f0f0', paddingBottom: '20px', flexShrink: 0 }}>
@@ -231,8 +231,8 @@ export default function Home({ products = [] }) {
             <button onClick={() => setCarritoAbierto(false)} style={{ background: '#f5f5f7', border: 'none', borderRadius: '50%', width: '32px', height: '32px', fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
           </div>
           
-          {/* Contenido Dinámico del Carrito (ZONA CON SCROLL EXCLUSIVO) */}
-          <div style={{ flexGrow: 1, overflowY: 'auto', padding: '10px 0', minHeight: 0 }}>
+          {/* Contenido Dinámico con Clase de Scroll Moderno */}
+          <div className="bolsa-productos-scroll" style={{ flexGrow: 1, overflowY: 'auto', padding: '10px 4px 10px 0', minHeight: 0 }}>
             {carrito.length === 0 ? (
               <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#86868b' }}>
                 <span style={{ fontSize: '2.5rem', marginBottom: '16px' }}>🛍️</span>
@@ -279,7 +279,7 @@ export default function Home({ products = [] }) {
             )}
           </div>
 
-          {/* Bloque de Cierre de Caja Unificado (BLOQUE COMPLETAMENTE FIJO ABAJO) */}
+          {/* Bloque de Cierre de Caja Unificado (SIEMPRE VISIBLE ABAJO) */}
           {carrito.length > 0 && (
             <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: '20px', backgroundColor: '#fff', flexShrink: 0, marginTop: 'auto' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', fontSize: '1.15rem', fontWeight: '700' }}>
@@ -408,8 +408,32 @@ export default function Home({ products = [] }) {
       </div>
       </div>
 
-      {/* CÓDIGO CSS INLINE COMPLEMENTARIO PARA COMPORTAMIENTO RESPONSIVE */}
+      {/* CÓDIGO CSS GLOBAL Y COMPORTAMIENTO DE SCROLL MINIMALISTA */}
       <style jsx global>{`
+        /* 🌟 ESTILIZADO DEL SCROLLBAR MODERNO (Para el contenedor de productos) */
+        .bolsa-productos-scroll::-webkit-scrollbar {
+          width: 5px; /* Súper fino */
+        }
+
+        .bolsa-productos-scroll::-webkit-scrollbar-track {
+          background: #ffffff; /* Fondo limpio que se mezcla con el contenedor */
+        }
+
+        .bolsa-productos-scroll::-webkit-scrollbar-thumb {
+          background: #e2e2e7; /* Gris sutil minimalista estilo Apple */
+          border-radius: 10px;
+        }
+
+        .bolsa-productos-scroll::-webkit-scrollbar-thumb:hover {
+          background: #d2d2d7; /* Se oscurece ligeramente al pasar el mouse */
+        }
+
+        /* Soporte moderno estándar para Firefox */
+        .bolsa-productos-scroll {
+          scrollbar-width: thin;
+          scrollbar-color: #e2e2e7 #ffffff;
+        }
+
         /* Configuración de la cuadrícula adaptiva */
         .products-grid {
           display: grid;
