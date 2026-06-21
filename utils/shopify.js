@@ -31,6 +31,7 @@ export async function getAllProducts() {
             title
             handle
             description
+            descriptionHtml
             images(first: 1) {
               edges {
                 node {
@@ -70,6 +71,7 @@ export async function getProductByHandle(handle) {
         id
         title
         description
+        descriptionHtml
         images(first: 5) {
           edges {
             node {

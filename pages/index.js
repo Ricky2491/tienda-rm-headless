@@ -9,13 +9,13 @@ export default function Home({ products = [] }) {
   // Estado para bloquear la pantalla/botón durante la llamada final de checkout
   const [comprando, setComprando] = useState(false);
 
-  // NUEVO: Estado del carrito de compras local interactivo
+  // Estado del carrito de compras local interactivo
   const [carrito, setCarrito] = useState([]);
 
-  // NUEVO: Estado para rastrear las cantidades seleccionadas en la cuadrícula de productos
+  // Estado para rastrear las cantidades seleccionadas en la cuadrícula de productos
   const [cantidadesSelector, setCantidadesSelector] = useState({});
 
-  // NUEVO: Estado para controlar el producto seleccionado en el modal de detalles
+  // Estado para controlar el producto seleccionado en el modal de detalles
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
 
   // Manejar el selector de cantidad (+ / -) de cada producto antes de agregarlo
@@ -27,7 +27,7 @@ export default function Home({ products = [] }) {
     });
   };
 
-  // NUEVO: Agregar productos acumulativos a la bolsa de compras local
+  // Agregar productos acumulativos a la bolsa de compras local
   const handleAgregarAlCarrito = (product, variantId) => {
     if (!variantId) return alert("Este producto no posee variantes activas.");
     
@@ -63,7 +63,7 @@ export default function Home({ products = [] }) {
     setCarritoAbierto(true);
   };
 
-  // NUEVO: Modificar unidades o remover elementos directamente desde el Sidebar
+  // Modificar unidades o remover elementos directamente desde el Sidebar
   const handleModificarCantidadCarrito = (variantId, delta) => {
     setCarrito((prevCarrito) =>
       prevCarrito
@@ -72,7 +72,7 @@ export default function Home({ products = [] }) {
             const nuevaCantidad = item.cantidad + delta;
             return nuevaCantidad > 0 ? { ...item, cantidad: nuevaCantidad } : null;
           }
-          return item;
+          return item
         })
         .filter(Boolean)
     );
@@ -83,7 +83,7 @@ export default function Home({ products = [] }) {
   const subtotalPrecio = carrito.reduce((sum, item) => sum + parseFloat(item.price?.amount || 0) * item.cantidad, 0);
   const codigoMoneda = carrito[0]?.price?.currencyCode || 'USD';
 
-  // MODIFICADO: Generar la sesión transaccional unificada con métodos de pago reales de Shopify
+  // Generar la sesión transaccional unificada con métodos de pago reales de Shopify
   const handleProcederAlPagoUnificado = async () => {
     if (carrito.length === 0) return;
 
@@ -213,7 +213,6 @@ export default function Home({ products = [] }) {
 
       {/* PANEL LATERAL DEL CARRITO */}
       {carritoAbierto && (
-        /* MODIFICADO: Se removieron propiedades de ancho en línea redundantes para que el CSS de abajo tome el control absoluto */
         <div className="bolsa-compras-sidebar" style={{ 
           position: 'fixed', 
           top: 0, 
@@ -414,7 +413,7 @@ export default function Home({ products = [] }) {
         </main>
       </div>
 
-      {/* NUEVO: MODAL INTERACTIVO DE DETALLES DEL PRODUCTO */}
+      {/* MODAL INTERACTIVO CON RENDERIZADO DE HTML ESTRUCTURADO */}
       {productoSeleccionado && (
         <div 
           onClick={() => setProductoSeleccionado(null)}
@@ -440,9 +439,9 @@ export default function Home({ products = [] }) {
             style={{
               backgroundColor: '#fff',
               borderRadius: '20px',
-              maxWidth: '600px',
+              maxWidth: '650px',
               width: '100%',
-              maxHeight: '90vh',
+              maxHeight: '85vh',
               overflowY: 'auto',
               padding: '32px',
               boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
@@ -497,11 +496,20 @@ export default function Home({ products = [] }) {
               </span>
             </div>
 
+            {/* MODIFICADO: Inyección controlada de HTML estructurado desde Shopify */}
             <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: '20px' }}>
-              <h4 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', fontWeight: '700', textTransform: 'uppercase', color: '#111', letterSpacing: '0.5px' }}>Descripción completa</h4>
-              <p style={{ fontSize: '0.95rem', color: '#444', lineHeight: '1.6', margin: 0, whiteSpace: 'pre-line' }}>
-                {productoSeleccionado.description || 'Sin descripción detallada disponible.'}
-              </p>
+              <h4 style={{ margin: '0 0 14px 0', fontSize: '0.95rem', fontWeight: '700', textTransform: 'uppercase', color: '#111', letterSpacing: '0.5px' }}>Descripción completa</h4>
+              
+              {productoSeleccionado.descriptionHtml ? (
+                <div 
+                  className="shopify-html-content"
+                  dangerouslySetInnerHTML={{ __html: productoSeleccionado.descriptionHtml }}
+                />
+              ) : (
+                <p style={{ fontSize: '0.95rem', color: '#444', lineHeight: '1.6', margin: 0 }}>
+                  {productoSeleccionado.description || 'Sin descripción detallada disponible.'}
+                </p>
+              )}
             </div>
 
             <button 
@@ -530,22 +538,51 @@ export default function Home({ products = [] }) {
         </div>
       )}
 
-      {/* 🌟 SECCIÓN DE ESTILOS CORREGIDA Y OPTIMIZADA */}
+      {/* SECCIÓN DE ESTILOS ADAPTIVOS Y FORMATEO DE CONTENIDO */}
       <style jsx global>{`
-        /* 📱 MANEJO ABSOLUTO DE ANCHOS MEDIANTE CSS PURO */
+        /* 🎨 NUEVO: FORMATEO PREMIUM DEL CONTENIDO HTML DE SHOPIFY */
+        .shopify-html-content {
+          font-size: 0.95rem;
+          line-height: 1.6;
+          color: #333;
+        }
+        .shopify-html-content p {
+          margin: 0 0 14px 0;
+        }
+        .shopify-html-content strong {
+          color: #000;
+          font-weight: 700;
+        }
+        .shopify-html-content a {
+          color: #0066cc;
+          text-decoration: none;
+          word-break: break-all;
+        }
+        .shopify-html-content a:hover {
+          text-decoration: underline;
+        }
+        .shopify-html-content ul, .shopify-html-content ol {
+          margin: 0 0 16px 0;
+          padding-left: 20px;
+        }
+        .shopify-html-content li {
+          margin-bottom: 6px;
+        }
+
+        /* MANEJO ABSOLUTO DE ANCHOS MEDIANTE CSS PURO */
         @media (max-width: 540px) {
           .bolsa-compras-sidebar {
-            width: 100% !important; /* En móviles pequeños ocupa el 100% de la pantalla */
+            width: 100% !important;
           }
         }
         @media (min-width: 541px) and (max-width: 1023px) {
           .bolsa-compras-sidebar {
-            width: 380px !important; /* En Tablets mantiene un tamaño lateral compacto */
+            width: 380px !important;
           }
         }
         @media (min-width: 1024px) {
           .bolsa-compras-sidebar {
-            width: 420px !important; /* 🌟 En PC de escritorio mide exactamente 420px (Mucho menos de la mitad de la pantalla) */
+            width: 420px !important;
           }
         }
 
@@ -553,20 +590,16 @@ export default function Home({ products = [] }) {
         .bolsa-productos-scroll::-webkit-scrollbar {
           width: 5px;
         }
-
         .bolsa-productos-scroll::-webkit-scrollbar-track {
           background: #ffffff;
         }
-
         .bolsa-productos-scroll::-webkit-scrollbar-thumb {
           background: #e2e2e7;
           border-radius: 10px;
         }
-
         .bolsa-productos-scroll::-webkit-scrollbar-thumb:hover {
           background: #d2d2d7;
         }
-
         .bolsa-productos-scroll {
           scrollbar-width: thin;
           scrollbar-color: #e2e2e7 #ffffff;
@@ -579,13 +612,11 @@ export default function Home({ products = [] }) {
           grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
           gap: 28px;
         }
-
         .product-card:hover {
           transform: translateY(-4px);
           box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.04) !important;
           border-color: #e2e2e7 !important;
         }
-
         .cart-remove-btn:hover {
           color: #ff3b30 !important;
         }
