@@ -18,6 +18,13 @@ export default function Home({ products = [] }) {
   // Estado para controlar el producto seleccionado en el modal de detalles
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
 
+  // 🌟 MODIFICACIÓN: Reordenar los productos para poner "Landing Page Responsive" de primero
+  const productosOrdenados = [...products].sort((a, b) => {
+    if (a.title === 'Landing Page Responsive') return -1;
+    if (b.title === 'Landing Page Responsive') return 1;
+    return 0;
+  });
+
   // Manejar el selector de cantidad (+ / -) de cada producto antes de agregarlo
   const handleCambiarCantidadSelector = (productId, delta) => {
     setCantidadesSelector((prev) => {
@@ -329,7 +336,8 @@ export default function Home({ products = [] }) {
             </div>
           ) : (
             <div className="products-grid">
-              {products.map((product) => {
+              {/* MODIFICADO: Ahora mapeamos 'productosOrdenados' en vez de 'products' */}
+              {productosOrdenados.map((product) => {
                 const image = product.images?.edges?.[0]?.node;
                 const price = product.priceRange?.minVariantPrice;
                 const variantId = product.variants?.edges?.[0]?.node?.id;
@@ -496,7 +504,6 @@ export default function Home({ products = [] }) {
               </span>
             </div>
 
-            {/* MODIFICADO: Inyección controlada de HTML estructurado desde Shopify */}
             <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: '20px' }}>
               <h4 style={{ margin: '0 0 14px 0', fontSize: '0.95rem', fontWeight: '700', textTransform: 'uppercase', color: '#111', letterSpacing: '0.5px' }}>Descripción completa</h4>
               
@@ -540,7 +547,6 @@ export default function Home({ products = [] }) {
 
       {/* SECCIÓN DE ESTILOS ADAPTIVOS Y FORMATEO DE CONTENIDO */}
       <style jsx global>{`
-        /* 🎨 NUEVO: FORMATEO PREMIUM DEL CONTENIDO HTML DE SHOPIFY */
         .shopify-html-content {
           font-size: 0.95rem;
           line-height: 1.6;
