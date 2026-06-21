@@ -15,6 +15,9 @@ export default function Home({ products = [] }) {
   // NUEVO: Estado para rastrear las cantidades seleccionadas en la cuadrícula de productos
   const [cantidadesSelector, setCantidadesSelector] = useState({});
 
+  // NUEVO: Estado para controlar el producto seleccionado en el modal de detalles
+  const [productoSeleccionado, setProductoSeleccionado] = useState(null);
+
   // Manejar el selector de cantidad (+ / -) de cada producto antes de agregarlo
   const handleCambiarCantidadSelector = (productId, delta) => {
     setCantidadesSelector((prev) => {
@@ -334,16 +337,22 @@ export default function Home({ products = [] }) {
                 const cantidadElegida = cantidadesSelector[product.id] || 1;
 
                 return (
-                  <div key={product.id} className="product-card" style={{ 
-                    backgroundColor: '#fff', 
-                    borderRadius: '16px', 
-                    border: '1px solid #f0f0f0', 
-                    padding: '16px', 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.01), 0 2px 4px -1px rgba(0,0,0,0.01)'
-                  }}>
+                  <div 
+                    key={product.id} 
+                    className="product-card" 
+                    onClick={() => setProductoSeleccionado(product)}
+                    style={{ 
+                      backgroundColor: '#fff', 
+                      borderRadius: '16px', 
+                      border: '1px solid #f0f0f0', 
+                      padding: '16px', 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.01), 0 2px 4px -1px rgba(0,0,0,0.01)',
+                      cursor: 'pointer'
+                    }}
+                  >
                     <div style={{ width: '100%', height: '240px', backgroundColor: '#fbfbfd', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
                       {image ? (
                         <img src={image.url} alt={image.altText || product.title} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '12px' }} />
@@ -357,7 +366,10 @@ export default function Home({ products = [] }) {
                       {product.description || 'Sin descripción detallada disponible.'}
                     </p>
                     
-                    <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#f5f5f7', padding: '6px 12px', borderRadius: '10px', marginBottom: '16px', justifyContent: 'space-between' }}>
+                    <div 
+                      onClick={(e) => e.stopPropagation()} 
+                      style={{ display: 'flex', alignItems: 'center', backgroundColor: '#f5f5f7', padding: '6px 12px', borderRadius: '10px', marginBottom: '16px', justifyContent: 'space-between' }}
+                    >
                       <span style={{ fontSize: '0.82rem', color: '#666', fontWeight: '500' }}>Cantidad:</span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <button onClick={() => handleCambiarCantidadSelector(product.id, -1)} style={{ border: 'none', background: '#fff', borderRadius: '6px', width: '28px', height: '28px', cursor: 'pointer', fontWeight: '700', fontSize: '0.95rem' }}>-</button>
@@ -366,7 +378,10 @@ export default function Home({ products = [] }) {
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '12px', borderTop: '1px solid #f5f5f7' }}>
+                    <div 
+                      onClick={(e) => e.stopPropagation()} 
+                      style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '12px', borderTop: '1px solid #f5f5f7' }}
+                    >
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <span style={{ fontSize: '0.75rem', color: '#86868b', textTransform: 'uppercase', fontWeight: '500' }}>Precio</span>
                         <span style={{ fontWeight: '700', fontSize: '1.2rem', color: '#000' }}>
@@ -398,6 +413,122 @@ export default function Home({ products = [] }) {
           )}
         </main>
       </div>
+
+      {/* NUEVO: MODAL INTERACTIVO DE DETALLES DEL PRODUCTO */}
+      {productoSeleccionado && (
+        <div 
+          onClick={() => setProductoSeleccionado(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100vh',
+            height: '100dvh',
+            backgroundColor: 'rgba(0,0,0,0.4)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 300,
+            padding: '20px',
+            boxSizing: 'border-box'
+          }}
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: '#fff',
+              borderRadius: '20px',
+              maxWidth: '600px',
+              width: '100%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              padding: '32px',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+              position: 'relative',
+              boxSizing: 'border-box'
+            }}
+          >
+            <button 
+              onClick={() => setProductoSeleccionado(null)}
+              style={{
+                position: 'absolute',
+                top: '20px',
+                right: '20px',
+                background: '#f5f5f7',
+                border: 'none',
+                borderRadius: '50%',
+                width: '36px',
+                height: '36px',
+                fontSize: '1rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 10
+              }}
+            >
+              ✕
+            </button>
+
+            <div style={{ width: '100%', height: '280px', backgroundColor: '#fbfbfd', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>
+              {productoSeleccionado.images?.edges?.[0]?.node?.url ? (
+                <img 
+                  src={productoSeleccionado.images.edges[0].node.url} 
+                  alt={productoSeleccionado.images.edges[0].node.altText || productoSeleccionado.title} 
+                  style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '16px' }} 
+                />
+              ) : (
+                <div style={{ color: '#aaa', fontSize: '0.9rem' }}>Sin Imagen</div>
+              )}
+            </div>
+
+            <h2 style={{ fontSize: '1.6rem', fontWeight: '800', margin: '0 0 12px 0', color: '#111', lineHeight: '1.3' }}>
+              {productoSeleccionado.title}
+            </h2>
+
+            <div style={{ marginBottom: '20px' }}>
+              <span style={{ fontSize: '0.8rem', color: '#86868b', textTransform: 'uppercase', fontWeight: '600', display: 'block', marginBottom: '4px' }}>Precio</span>
+              <span style={{ fontWeight: '800', fontSize: '1.5rem', color: '#0066cc' }}>
+                {productoSeleccionado.priceRange?.minVariantPrice 
+                  ? `${parseFloat(productoSeleccionado.priceRange.minVariantPrice.amount).toFixed(2)} ${productoSeleccionado.priceRange.minVariantPrice.currencyCode}`
+                  : '0.00'}
+              </span>
+            </div>
+
+            <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: '20px' }}>
+              <h4 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', fontWeight: '700', textTransform: 'uppercase', color: '#111', letterSpacing: '0.5px' }}>Descripción completa</h4>
+              <p style={{ fontSize: '0.95rem', color: '#444', lineHeight: '1.6', margin: 0, whiteSpace: 'pre-line' }}>
+                {productoSeleccionado.description || 'Sin descripción detallada disponible.'}
+              </p>
+            </div>
+
+            <button 
+              onClick={() => {
+                const variantId = productoSeleccionado.variants?.edges?.[0]?.node?.id;
+                handleAgregarAlCarrito(productoSeleccionado, variantId);
+                setProductoSeleccionado(null);
+              }}
+              style={{
+                marginTop: '28px',
+                backgroundColor: '#111',
+                color: '#fff',
+                border: 'none',
+                width: '100%',
+                padding: '16px',
+                borderRadius: '12px',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s ease'
+              }}
+            >
+              Añadir a bolsa de compras
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 🌟 SECCIÓN DE ESTILOS CORREGIDA Y OPTIMIZADA */}
       <style jsx global>{`
