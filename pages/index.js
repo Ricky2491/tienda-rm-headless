@@ -207,6 +207,22 @@ export default function Home({ products = [] }) {
                 <p><strong>Link web ejemplo:</strong> <a href="https://perlacargocorp.netlify.app/" target="_blank">https://perlacargocorp.netlify.app/</a></p>
                 <p><strong>Usuario:</strong> rm | <strong>Password:</strong> 1234</p>
                 <p><strong>Portafolio:</strong> <a href="https://rm-portafolioresponsive.netlify.app/" target="_blank">https://rm-portafolioresponsive.netlify.app/</a></p>
+                <br/>
+          <p><strong>Observación:</strong><br/>
+          Con el fin de garantizar el éxito de la plataforma, iniciaremos con un diálogo para validar la estructura requerida. Es importante acotar que los costos presentados cubren el desarrollo técnico y un diseño base que no requiere la elaboración de imágenes desde cero. Si durante nuestra planificación se acuerda la necesidad de desarrollar contenido gráfico personalizado, este rubro generará un valor adicional que será notificado y aprobado previamente por su parte.</p>
+          <br/>
+          <h3>Beneficios:</h3>
+          <p>° <strong>Base de datos:</strong> No necesitas bases de datos complejas como (MySQL, Firebase o SQL Server). El almacenamiento de los datos es en excel de Google Drive.<br/>
+          ° <strong>Dashboard:</strong> El dueño del negocio no necesita entrar a un panel de administración complejo (dashboard) ni saber de bases de datos para ver sus ventas o citas. Solo abre la aplicación de Google Sheets en su teléfono móvil y ve los registros en tiempo real.<br/>
+          ° <strong>Velocidad y Ligereza:</strong> Al no depender de sistemas pesados como WordPress, una página construida con HTML5 y Bootstrap carga de forma casi instantánea. Esto mejora drásticamente la retención de usuarios en teléfonos móviles con conexiones lentas.<br/>
+          ° <strong>Gráficos en Tiempo Real:</strong> Puedes crear gráficos de barras, líneas o pastel que se alimenten de la hoja principal del excel. Lo mejor es que se actualizan solos cada vez que un nuevo usuario llena el formulario en la Landing Page.</p>
+          <br/>
+          <h3>¿Qué tipos de negocios pueden operar así?</h3>
+          <p>Cualquier proyecto que requiera capturar datos de usuarios, mostrar un catálogo sencillo o gestionar agendas sin la complejidad de procesar miles de transacciones por segundo.</p>
+          <p>° <strong>Servicios Locales y Profesionales Autónomos:</strong> Consultorios médicos, psicólogos, barberías, salones de belleza o entrenadores personales. La Landing Page muestra los servicios y un formulario conecta con la hoja de cálculo para gestionar citas o reservas.<br/>
+          ° <strong>Venta de Productos Únicos o Catálogos Pequeños:</strong> Tiendas de repostería artesanal, lanzamientos de libros, preventas de productos o dropshipping de nicho. JavaScript lee las filas de tu hoja de cálculo para mostrar los productos disponibles (imagen, precio, stock) y el formulario envía los pedidos de los clientes directamente a otra pestaña.<br/>
+          ° <strong>Captación de Clientes Potenciales (Lead Generation):</strong> Agencias inmobiliarias locales, cotizadores de seguros o servicios de mudanzas. El usuario deja sus datos de contacto y requerimientos en la web, y estos caen directamente al Excel en la nube para que el equipo comercial los llame.<br/>
+          ° <strong>Eventos y Cursos:</strong> Registro para talleres, conferencias locales, bodas o fiestas. Sirve para confirmar asistencia o vender entradas recopilando los datos de los asistentes de manera organizada.</p>
               </div>
             ) : (
               <div dangerouslySetInnerHTML={{ __html: productoSeleccionado.descriptionHtml }} />
