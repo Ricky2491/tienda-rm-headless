@@ -198,7 +198,7 @@ export default function Home({ products = [] }) {
       <div style={{ padding: '40px 24px', maxWidth: '1200px', margin: '0 auto' }}>
         <div className="products-grid">
           {productosOrdenados.map((product) => (
-            <div key={product.id} className="product-card" style={{ backgroundColor: '#fff', padding: '16px', borderRadius: '16px', border: '1px solid #f0f0f0' }}>
+            <div key={product.id} className="product-card" onClick={() => setProductoSeleccionado(product)} style={{ backgroundColor: '#fff', padding: '16px', borderRadius: '16px', border: '1px solid #f0f0f0', cursor: 'pointer' }}>
               <div style={{ height: '240px', backgroundColor: '#fbfbfd', marginBottom: '16px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <img src={product.images?.edges?.[0]?.node?.url} style={{ height: '100%', objectFit: 'contain' }} />
               </div>
