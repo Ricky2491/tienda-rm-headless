@@ -203,11 +203,20 @@ export default function Home({ products = [] }) {
                 <img src={product.images?.edges?.[0]?.node?.url} style={{ height: '100%', objectFit: 'contain' }} />
               </div>
               <h3>{product.title}</h3>
-              <button onClick={() => handleAgregarAlCarrito(product, product.variants?.edges?.[0]?.node?.id)} style={{ backgroundColor: '#000', color: '#fff', padding: '10px 18px', borderRadius: '10px', border: 'none', cursor: 'pointer' }}>Añadir a bolsa</button>
-            </div>
-          ))}
-        </div>
+              {/* CORRECCIÓN AQUÍ: Agregamos (e) => { e.stopPropagation(); ... } */}
+        <button 
+          onClick={(e) => { 
+            e.stopPropagation(); 
+            handleAgregarAlCarrito(product, product.variants?.edges?.[0]?.node?.id); 
+          }} 
+          style={{ backgroundColor: '#000', color: '#fff', padding: '10px 18px', borderRadius: '10px', border: 'none', cursor: 'pointer' }}
+        >
+          Añadir a bolsa
+        </button>
       </div>
+    ))}
+  </div>
+</div>
 {productoSeleccionado && (
         <div onClick={() => setProductoSeleccionado(null)} style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100dvh', backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(5px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 300, padding: '20px' }}>
           <div onClick={(e) => e.stopPropagation()} style={{ backgroundColor: '#fff', borderRadius: '20px', maxWidth: '600px', width: '100%', maxHeight: '80vh', overflowY: 'auto', padding: '30px', position: 'relative' }}>
