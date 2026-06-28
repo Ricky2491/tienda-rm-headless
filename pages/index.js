@@ -68,9 +68,7 @@ export default function Home({ products = [] }) {
       ];
     });
 
-    // Limpiar el selector del producto respectivo volviéndolo a 1
     setCantidadesSelector((prev) => ({ ...prev, [product.id]: 1 }));
-    // Desplegar el panel de compras lateral automáticamente para dar feedback al usuario
     setCarritoAbierto(true);
   };
 
@@ -89,12 +87,11 @@ export default function Home({ products = [] }) {
     );
   };
 
-  // Cálculos dinámicos de los indicadores del Carrito
   const totalArticulos = carrito.reduce((sum, item) => sum + item.cantidad, 0);
   const subtotalPrecio = carrito.reduce((sum, item) => sum + parseFloat(item.price?.amount || 0) * item.cantidad, 0);
   const codigoMoneda = carrito[0]?.price?.currencyCode || 'USD';
 
-  // LÓGICA REEMPLAZADA: Procesar el pedido de manera manual e independiente vía WhatsApp
+  // LÓGICA: Procesar el pedido vía WhatsApp
   const handleProcesarPagoWhatsApp = () => {
     const nombre = document.getElementById('cliente_nombre')?.value.trim();
     const apellido = document.getElementById('cliente_apellido')?.value.trim();
@@ -105,7 +102,7 @@ export default function Home({ products = [] }) {
       return;
     }
 
-    const tuTelefonoWhatsApp = "584120000000"; // Tu número de atención
+    const tuTelefonoWhatsApp = "584120000000"; 
 
     let mensaje = `🔔 *NUEVO PEDIDO - TIENDA RM*\n\n`;
     mensaje += `👤 *Cliente:* ${nombre} ${apellido}\n`;
@@ -126,45 +123,50 @@ export default function Home({ products = [] }) {
     window.location.href = urlFinal;
   };
 
-  // Renderizar los botones de PayPal de forma segura vigilando los cambios del DOM
+  // 🌟 MODIFICACIÓN: Renderizado seguro de PayPal con retraso para asegurar que el DOM esté listo
   useEffect(() => {
     if ((paypalListo || window.paypal) && carritoAbierto && carrito.length > 0) {
-      const contenedor = document.getElementById('contenedor-botones-paypal');
-      if (contenedor) {
-        contenedor.innerHTML = ''; // Evita duplicaciones
-        window.paypal.Buttons({
-          createOrder: (data, actions) => {
-            return actions.order.create({
-              purchase_units: [{
-                description: "Compra unificada en Tienda RM",
-                amount: {
-                  currency_code: codigoMoneda || "USD",
-                  value: subtotalPrecio.toFixed(2)
-                }
-              }]
-            });
-          },
-          onApprove: async (data, actions) => {
-            const order = await actions.order.capture();
-            alert(`¡Pago procesado con éxito! Gracias por tu compra, ${order.payer.name.given_name}.`);
-            setCarrito([]);
-            setCarritoAbierto(false);
-          },
-          onError: (err) => {
-            console.error("Error en la pasarela de PayPal:", err);
-            alert("Hubo un inconveniente al procesar la transacción con PayPal.");
-          }
-        }).render('#contenedor-botones-paypal');
-      }
+      
+      const timeoutId = setTimeout(() => {
+        const contenedor = document.getElementById('contenedor-botones-paypal');
+        
+        // Verificamos que el contenedor exista y esté vacío para evitar renders múltiples
+        if (contenedor && contenedor.innerHTML === '') {
+          window.paypal.Buttons({
+            createOrder: (data, actions) => {
+              return actions.order.create({
+                purchase_units: [{
+                  description: "Compra unificada en Tienda RM",
+                  amount: {
+                    currency_code: codigoMoneda || "USD",
+                    value: subtotalPrecio.toFixed(2)
+                  }
+                }]
+              });
+            },
+            onApprove: async (data, actions) => {
+              const order = await actions.order.capture();
+              alert(`¡Pago procesado con éxito! Gracias por tu compra, ${order.payer.name.given_name}.`);
+              setCarrito([]);
+              setCarritoAbierto(false);
+            },
+            onError: (err) => {
+              console.error("Error en la pasarela de PayPal:", err);
+            }
+          }).render('#contenedor-botones-paypal');
+        }
+      }, 250); // 250ms permiten que React dibuje el menú lateral completo antes de inyectar PayPal
+
+      return () => clearTimeout(timeoutId);
     }
-  }, [carritoAbierto, carrito, paypalListo, subtotalPrecio, codigoMoneda]);
+  }, [carritoAbierto, carrito.length, paypalListo, subtotalPrecio, codigoMoneda]);
 
   return (
     <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif', minHeight: '100vh', backgroundColor: '#fcfcfc', color: '#111' }}>
       
-      {/* Carga del SDK de PayPal al iniciar la app de forma global */}
+      {/* 🌟 Carga global del SDK con Client ID "test" para forzar la visualización UI */}
       <Script 
-        src="https://www.paypal.com/sdk/js?client-id=AQ5O_YOUR_REAL_CLIENT_ID_HERE&currency=USD"
+        src="https://www.paypal.com/sdk/js?client-id=test&currency=USD"
         strategy="afterInteractive"
         onLoad={() => setPaypalListo(true)}
       />
@@ -311,7 +313,6 @@ export default function Home({ products = [] }) {
                       <button onClick={() => handleModificarCantidadCarrito(item.variantId, 1)} style={{ border: '1px solid #d2d2d7', backgroundColor: '#fff', borderRadius: '4px', width: '26px', height: '26px', cursor: 'pointer', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
                     </div>
                   </div>
-                  {/* Botón Eliminar */}
                   <button 
                     onClick={() => handleModificarCantidadCarrito(item.variantId, -item.cantidad)}
                     className="cart-remove-btn"
@@ -369,7 +370,7 @@ export default function Home({ products = [] }) {
                 <span>{subtotalPrecio.toFixed(2)} {codigoMoneda}</span>
               </div>
 
-              {/* MÉTODO 1: WhatsApp (Pago Móvil / Transferencia) */}
+              {/* MÉTODO 1: WhatsApp */}
               <button 
                 onClick={handleProcesarPagoWhatsApp}
                 style={{ 
@@ -383,7 +384,7 @@ export default function Home({ products = [] }) {
                   fontWeight: '600', 
                   cursor: 'pointer',
                   transition: 'background-color 0.2s ease',
-                  marginBottom: '10px',
+                  marginBottom: '14px',
                   WebkitAppearance: 'none'
                 }}
               >
@@ -391,7 +392,7 @@ export default function Home({ products = [] }) {
               </button>
 
               {/* MÉTODO 2: Contenedor para inyección dinámica de los botones de PayPal */}
-              <div id="contenedor-botones-paypal" style={{ minHeight: '100px', marginTop: '4px' }}></div>
+              <div id="contenedor-botones-paypal" style={{ minHeight: '45px', width: '100%' }}></div>
 
             </div>
           )}
@@ -414,7 +415,6 @@ export default function Home({ products = [] }) {
             </div>
           ) : (
             <div className="products-grid">
-              {/* MODIFICADO: Ahora mapeamos 'productosOrdenados' en vez de 'products' */}
               {productosOrdenados.map((product) => {
                 const image = product.images?.edges?.[0]?.node;
                 const price = product.priceRange?.minVariantPrice;
