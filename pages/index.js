@@ -4,127 +4,130 @@ import Script from 'next/script';
 import { getAllProducts, createCheckout } from '../utils/shopify';
 
 export default function Home({ products = [] }) {
-  const [menuAbierto, setMenuAbierto] = useState(false);
-  const [carritoAbierto, setCarritoAbierto] = useState(false);
-  const [comprando, setComprando] = useState(false);
-  const [carrito, setCarrito] = useState([]);
-  const [cantidadesSelector, setCantidadesSelector] = useState({});
-  const [productoSeleccionado, setProductoSeleccionado] = useState(null);
-  const [paypalListo, setPaypalListo] = useState(false);
+    const [menuAbierto, setMenuAbierto] = useState(false);
+    const [carritoAbierto, setCarritoAbierto] = useState(false);
+    const [comprando, setComprando] = useState(false);
+    const [carrito, setCarrito] = useState([]);
+    const [cantidadesSelector, setCantidadesSelector] = useState({});
+    const [productoSeleccionado, setProductoSeleccionado] = useState(null);
+    const [paypalListo, setPaypalListo] = useState(false);
 
-  const productosOrdenados = [...products].sort((a, b) => {
-    if (a.title === 'Landing Page Responsive') return -1;
-    if (b.title === 'Landing Page Responsive') return 1;
-    return 0;
-  });
-
-  const handleCambiarCantidadSelector = (productId, delta) => {
-    setCantidadesSelector((prev) => {
-      const cantidadActual = prev[productId] || 1;
-      const nuevaCantidad = cantidadActual + delta;
-      return { ...prev, [productId]: nuevaCantidad < 1 ? 1 : nuevaCantidad };
+    const productosOrdenados = [...products].sort((a, b) => {
+        if (a.title === 'Landing Page Responsive') return -1;
+        if (b.title === 'Landing Page Responsive') return 1;
+        return 0;
     });
-  };
 
-  const handleAgregarAlCarrito = (product, variantId) => {
-    if (!variantId) return alert("Este producto no posee variantes activas.");
-    const cantidadAñadir = cantidadesSelector[product.id] || 1;
+    const handleCambiarCantidadSelector = (productId, delta) => {
+        setCantidadesSelector((prev) => {
+            const cantidadActual = prev[productId] || 1;
+            const nuevaCantidad = cantidadActual + delta;
+            return { ...prev, [productId]: nuevaCantidad < 1 ? 1 : nuevaCantidad };
+        });
+    };
 
-    setCarrito((prevCarrito) => {
-      const itemExistente = prevCarrito.find((item) => item.variantId === variantId);
-      
-      if (itemExistente) {
-        return prevCarrito.map((item) =>
-          item.variantId === variantId
-            ? { ...item, cantidad: item.cantidad + cantidadAñadir }
-            : item
+    const handleAgregarAlCarrito = (product, variantId) => {
+        if (!variantId) return alert("Este producto no posee variantes activas.");
+        const cantidadAñadir = cantidadesSelector[product.id] || 1;
+
+        setCarrito((prevCarrito) => {
+            const itemExistente = prevCarrito.find((item) => item.variantId === variantId);
+
+            if (itemExistente) {
+                return prevCarrito.map((item) =>
+                    item.variantId === variantId ? { ...item, cantidad: item.cantidad + cantidadAñadir } :
+                    item
+                );
+            }
+
+            return [
+                ...prevCarrito,
+                {
+                    id: product.id,
+                    title: product.title,
+                    image: product.images ? .edges ? . [0] ? .node ? .url,
+                    price: product.priceRange ? .minVariantPrice,
+                    variantId: variantId,
+                    cantidad: cantidadAñadir,
+                },
+            ];
+        });
+
+        setCantidadesSelector((prev) => ({ ...prev, [product.id]: 1 }));
+        setCarritoAbierto(true);
+    };
+
+    const handleModificarCantidadCarrito = (variantId, delta) => {
+        setCarrito((prevCarrito) =>
+            prevCarrito
+            .map((item) => {
+                if (item.variantId === variantId) {
+                    const nuevaCantidad = item.cantidad + delta;
+                    return nuevaCantidad > 0 ? { ...item, cantidad: nuevaCantidad } : null;
+                }
+                return item
+            })
+            .filter(Boolean)
         );
-      }
+    };
 
-      return [
-        ...prevCarrito,
-        {
-          id: product.id,
-          title: product.title,
-          image: product.images?.edges?.[0]?.node?.url,
-          price: product.priceRange?.minVariantPrice,
-          variantId: variantId,
-          cantidad: cantidadAñadir,
-        },
-      ];
-    });
+    const handleEliminarDelCarrito = (variantId) => {
+        setCarrito((prevCarrito) => prevCarrito.filter((item) => item.variantId !== variantId));
+    };
 
-    setCantidadesSelector((prev) => ({ ...prev, [product.id]: 1 }));
-    setCarritoAbierto(true);
-  };
+    const totalArticulos = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+    const subtotalPrecio = carrito.reduce((sum, item) => sum + parseFloat(item.price ? .amount || 0) * item.cantidad, 0);
+    const codigoMoneda = carrito[0] ? .price ? .currencyCode || 'USD';
 
-  const handleModificarCantidadCarrito = (variantId, delta) => {
-    setCarrito((prevCarrito) =>
-      prevCarrito
-        .map((item) => {
-          if (item.variantId === variantId) {
-            const nuevaCantidad = item.cantidad + delta;
-            return nuevaCantidad > 0 ? { ...item, cantidad: nuevaCantidad } : null;
-          }
-          return item
-        })
-        .filter(Boolean)
-    );
-  };
+    const handleProcesarPagoWhatsApp = () => {
+        const nombre = document.getElementById('cliente_nombre') ? .value.trim();
+        const apellido = document.getElementById('cliente_apellido') ? .value.trim();
+        const telefonoCliente = document.getElementById('cliente_telefono') ? .value.trim();
 
-  const totalArticulos = carrito.reduce((sum, item) => sum + item.cantidad, 0);
-  const subtotalPrecio = carrito.reduce((sum, item) => sum + parseFloat(item.price?.amount || 0) * item.cantidad, 0);
-  const codigoMoneda = carrito[0]?.price?.currencyCode || 'USD';
-
-  const handleProcesarPagoWhatsApp = () => {
-    const nombre = document.getElementById('cliente_nombre')?.value.trim();
-    const apellido = document.getElementById('cliente_apellido')?.value.trim();
-    const telefonoCliente = document.getElementById('cliente_telefono')?.value.trim();
-
-    if (!nombre || !apellido || !telefonoCliente) {
-      alert("Por favor, completa tu Nombre, Apellido y Teléfono para procesar el pedido.");
-      return;
-    }
-
-    const tuTelefonoWhatsApp = "584120000000"; 
-    let mensaje = `🔔 *NUEVO PEDIDO - TIENDA RM*\n\n👤 *Cliente:* ${nombre} ${apellido}\n📞 *Contacto:* ${telefonoCliente}\n📦 *Método de Pago:* Pago Móvil / Transferencia Bancaria\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n🛒 *Detalle de la compra:*\n`;
-    carrito.forEach((item) => {
-      mensaje += `• ${item.title} x${item.cantidad} — (${parseFloat(item.price?.amount).toFixed(2)} ${item.price?.currencyCode} c/u)\n`;
-    });
-    mensaje += `\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n💰 *TOTAL A PAGAR:* ${subtotalPrecio.toFixed(2)} ${codigoMoneda}\n\n📌 _Por favor, indícanos los datos de tu pago._`;
-    window.location.href = `https://wa.me/${tuTelefonoWhatsApp}?text=${encodeURIComponent(mensaje)}`;
-  };
-
-  useEffect(() => {
-    if ((paypalListo || window.paypal) && carritoAbierto && carrito.length > 0) {
-      const timeoutId = setTimeout(() => {
-        const contenedor = document.getElementById('contenedor-botones-paypal');
-        if (contenedor && contenedor.innerHTML === '') {
-          window.paypal.Buttons({
-            createOrder: (data, actions) => {
-              return actions.order.create({
-                purchase_units: [{
-                  description: "Compra unificada en Tienda RM",
-                  amount: { currency_code: codigoMoneda || "USD", value: subtotalPrecio.toFixed(2) }
-                }]
-              });
-            },
-            onApprove: async (data, actions) => {
-              const order = await actions.order.capture();
-              alert(`¡Pago procesado con éxito! Gracias por tu compra, ${order.payer.name.given_name}.`);
-              setCarrito([]);
-              setCarritoAbierto(false);
-            },
-            onError: (err) => console.error("Error en la pasarela de PayPal:", err)
-          }).render('#contenedor-botones-paypal');
+        if (!nombre || !apellido || !telefonoCliente) {
+            alert("Por favor, completa tu Nombre, Apellido y Teléfono para procesar el pedido.");
+            return;
         }
-      }, 250);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [carritoAbierto, carrito.length, paypalListo, subtotalPrecio, codigoMoneda]);
 
-  return (
-    <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif', minHeight: '100vh', backgroundColor: '#fcfcfc', color: '#111' }}>
+        const tuTelefonoWhatsApp = "584120000000";
+        let mensaje = `🔔 *NUEVO PEDIDO - TIENDA RM*\n\n👤 *Cliente:* ${nombre} ${apellido}\n📞 *Contacto:* ${telefonoCliente}\n📦 *Método de Pago:* Pago Móvil / Transferencia Bancaria\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n🛒 *Detalle de la compra:*\n`;
+        carrito.forEach((item) => {
+            mensaje += `• ${item.title} x${item.cantidad} — (${parseFloat(item.price?.amount).toFixed(2)} ${item.price?.currencyCode} c/u)\n`;
+        });
+        mensaje += `\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n💰 *TOTAL A PAGAR:* ${subtotalPrecio.toFixed(2)} ${codigoMoneda}\n\n📌 _Por favor, indícanos los datos de tu pago._`;
+        window.location.href = `https://wa.me/${tuTelefonoWhatsApp}?text=${encodeURIComponent(mensaje)}`;
+    };
+
+    useEffect(() => {
+        if ((paypalListo || window.paypal) && carritoAbierto && carrito.length > 0) {
+            const timeoutId = setTimeout(() => {
+                const contenedor = document.getElementById('contenedor-botones-paypal');
+                if (contenedor && contenedor.innerHTML === '') {
+                    window.paypal.Buttons({
+                        createOrder: (data, actions) => {
+                            return actions.order.create({
+                                purchase_units: [{
+                                    description: "Compra unificada en Tienda RM",
+                                    amount: { currency_code: codigoMoneda || "USD", value: subtotalPrecio.toFixed(2) }
+                                }]
+                            });
+                        },
+                        onApprove: async (data, actions) => {
+                            const order = await actions.order.capture();
+                            alert(`¡Pago procesado con éxito! Gracias por tu compra, ${order.payer.name.given_name}.`);
+                            setCarrito([]);
+                            setCarritoAbierto(false);
+                        },
+                        onError: (err) => console.error("Error en la pasarela de PayPal:", err)
+                    }).render('#contenedor-botones-paypal');
+                }
+            }, 250);
+            return () => clearTimeout(timeoutId);
+        }
+    }, [carritoAbierto, carrito.length, paypalListo, subtotalPrecio, codigoMoneda]);
+
+    return (
+        <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif', minHeight: '100vh', backgroundColor: '#fcfcfc', color: '#111' }}>
       <Script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD" strategy="afterInteractive" onLoad={() => setPaypalListo(true)} />
 
       <nav style={{ borderBottom: '1px solid #f0f0f0', padding: '0 24px', height: '70px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, backgroundColor: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(10px)', zIndex: 100 }}>
@@ -152,6 +155,13 @@ export default function Home({ products = [] }) {
               <>
                 {carrito.map((item) => (
                   <div key={item.variantId} style={{ display: 'flex', gap: '14px', padding: '16px 0', borderBottom: '1px solid #f5f5f7', position: 'relative' }}>
+                    {/* BOTÓN PARA ELIMINAR */}
+    <button 
+      onClick={() => handleEliminarDelCarrito(item.variantId)}
+      style={{ position: 'absolute', top: '10px', right: '0', background: 'none', border: 'none', color: '#ff3b30', cursor: 'pointer', fontSize: '1.1rem' }}
+    >
+      ✕
+    </button>
                     <img src={item.image} style={{ width: '65px', height: '65px', objectFit: 'contain', backgroundColor: '#fbfbfd', borderRadius: '8px' }} />
                     <div style={{ flexGrow: 1 }}>
                       <h4 style={{ margin: '0 0 4px 0', fontSize: '0.9rem' }}>{item.title}</h4>
@@ -206,14 +216,14 @@ export default function Home({ products = [] }) {
         @media (min-width: 541px) { .bolsa-compras-sidebar { width: 420px !important; } }
       `}</style>
     </div>
-  );
+    );
 }
 
 export async function getServerSideProps() {
-  try {
-    const products = await getAllProducts();
-    return { props: { products: products || [] } };
-  } catch (error) {
-    return { props: { products: [] } };
-  }
+    try {
+        const products = await getAllProducts();
+        return { props: { products: products || [] } };
+    } catch (error) {
+        return { props: { products: [] } };
+    }
 }
