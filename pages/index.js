@@ -143,6 +143,8 @@ export default function Home({ products = [] }) {
             <h2 style={{ margin: 0, fontSize: '1.3rem' }}>Tu bolsa de compras</h2>
             <button onClick={() => setCarritoAbierto(false)} style={{ background: '#f5f5f7', border: 'none', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer' }}>✕</button>
           </div>
+          
+          {/* AQUÍ ESTÁ LA CORRECCIÓN: Todo el contenido va dentro de este scrollable div */}
           <div className="bolsa-productos-scroll" style={{ flexGrow: 1, overflowY: 'auto', padding: '10px 2px', minHeight: 0 }}>
             {carrito.length === 0 ? (
               <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#86868b' }}>Carrito vacío.</div>
@@ -162,11 +164,18 @@ export default function Home({ products = [] }) {
                     </div>
                   </div>
                 ))}
+
+                {/* FORMULARIO Y PAGOS DENTRO DEL SCROLL */}
                 <div style={{ marginTop: '20px', paddingTop: '16px' }}>
                   <input type="text" placeholder="Nombre" id="cliente_nombre" style={{ width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #d2d2d7' }} />
                   <input type="text" placeholder="Apellido" id="cliente_apellido" style={{ width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #d2d2d7' }} />
                   <input type="tel" placeholder="Teléfono" id="cliente_telefono" style={{ width: '100%', padding: '10px', marginBottom: '16px', borderRadius: '8px', border: '1px solid #d2d2d7' }} />
-                  <button onClick={handleProcesarPagoWhatsApp} style={{ backgroundColor: '#00cc66', color: '#fff', width: '100%', padding: '13px', borderRadius: '10px', border: 'none', marginBottom: '14px', cursor: 'pointer' }}>Confirmar Pedido por WhatsApp</button>
+                  
+                  <button onClick={handleProcesarPagoWhatsApp} style={{ backgroundColor: '#00cc66', color: '#fff', width: '100%', padding: '13px', borderRadius: '10px', border: 'none', marginBottom: '14px', cursor: 'pointer' }}>
+                    Confirmar Pedido por WhatsApp
+                  </button>
+
+                  {/* El contenedor PayPal está ahora DENTRO del área scrollable */}
                   <div id="contenedor-botones-paypal" style={{ minHeight: '150px', width: '100%' }}></div>
                 </div>
               </>
@@ -175,62 +184,20 @@ export default function Home({ products = [] }) {
         </div>
       )}
 
+      {/* CUERPO CENTRAL */}
       <div style={{ padding: '40px 24px', maxWidth: '1200px', margin: '0 auto' }}>
         <div className="products-grid">
           {productosOrdenados.map((product) => (
-            <div key={product.id} className="product-card" onClick={() => setProductoSeleccionado(product)} style={{ backgroundColor: '#fff', padding: '16px', borderRadius: '16px', border: '1px solid #f0f0f0', cursor: 'pointer' }}>
+            <div key={product.id} className="product-card" style={{ backgroundColor: '#fff', padding: '16px', borderRadius: '16px', border: '1px solid #f0f0f0' }}>
               <div style={{ height: '240px', backgroundColor: '#fbfbfd', marginBottom: '16px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <img src={product.images?.edges?.[0]?.node?.url} style={{ height: '100%', objectFit: 'contain' }} />
               </div>
               <h3>{product.title}</h3>
-              <button onClick={(e) => { e.stopPropagation(); handleAgregarAlCarrito(product, product.variants?.edges?.[0]?.node?.id); }} style={{ backgroundColor: '#000', color: '#fff', padding: '10px 18px', borderRadius: '10px', border: 'none', cursor: 'pointer' }}>Añadir a bolsa</button>
+              <button onClick={() => handleAgregarAlCarrito(product, product.variants?.edges?.[0]?.node?.id)} style={{ backgroundColor: '#000', color: '#fff', padding: '10px 18px', borderRadius: '10px', border: 'none', cursor: 'pointer' }}>Añadir a bolsa</button>
             </div>
           ))}
         </div>
       </div>
-
-      {productoSeleccionado && (
-        <div onClick={() => setProductoSeleccionado(null)} style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100dvh', backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(5px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 300, padding: '20px' }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ backgroundColor: '#fff', borderRadius: '20px', maxWidth: '600px', width: '100%', maxHeight: '80vh', overflowY: 'auto', padding: '30px', position: 'relative' }}>
-            <button onClick={() => setProductoSeleccionado(null)} style={{ position: 'absolute', top: '20px', right: '20px', background: '#f5f5f7', border: 'none', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer' }}>✕</button>
-            <h2 style={{ fontSize: '1.6rem', marginBottom: '20px' }}>{productoSeleccionado.title}</h2>
-            {productoSeleccionado.title === 'Landing Page Responsive' ? (
-              <div style={{ fontSize: '0.95rem', lineHeight: '1.6', color: '#333' }}>
-                <p>Tu negocio merece una Landing Page interactiva y responsiva que trabaje para ti las 24 horas.</p>
-                <p><strong>Lenguajes:</strong> Html5 - Css3 - JavaScript - Bootstrap.</p>
-                <p><strong>Alojamiento Web (Hosting) y Despliegue:</strong> El costo base por el desarrollo del proyecto es de $30.00 (pago único). Para la puesta en línea de la plataforma, disponemos de las siguientes modalidades de hosting:</p>
-                <ul>
-                  <li><strong>Alojamiento Externo:</strong> Si usted ya cuenta con un proveedor de hosting o prefiere adquirirlo por su cuenta el costo del proyecto será solo de 30$.</li>
-                  <li><strong>Alojamiento Gestionado:</strong> Si prefiere que la infraestructura corra por mi cuenta, el servicio tendrá un costo operativo adicional de $10.00 mensuales.</li>
-                  <li><strong>Alojamiento Temporal:</strong> Para proyectos con una fecha de caducidad definida.</li>
-                </ul>
-                <p><strong>Link web ejemplo:</strong> <a href="https://perlacargocorp.netlify.app/" target="_blank">https://perlacargocorp.netlify.app/</a></p>
-                <p><strong>Usuario:</strong> rm | <strong>Password:</strong> 1234</p>
-                <p><strong>Portafolio:</strong> <a href="https://rm-portafolioresponsive.netlify.app/" target="_blank">https://rm-portafolioresponsive.netlify.app/</a></p>
-                <br/>
-          <p><strong>Observación:</strong><br/>
-          Con el fin de garantizar el éxito de la plataforma, iniciaremos con un diálogo para validar la estructura requerida. Es importante acotar que los costos presentados cubren el desarrollo técnico y un diseño base que no requiere la elaboración de imágenes desde cero. Si durante nuestra planificación se acuerda la necesidad de desarrollar contenido gráfico personalizado, este rubro generará un valor adicional que será notificado y aprobado previamente por su parte.</p>
-          <br/>
-          <h3>Beneficios:</h3>
-          <p>° <strong>Base de datos:</strong> No necesitas bases de datos complejas como (MySQL, Firebase o SQL Server). El almacenamiento de los datos es en excel de Google Drive.<br/>
-          ° <strong>Dashboard:</strong> El dueño del negocio no necesita entrar a un panel de administración complejo (dashboard) ni saber de bases de datos para ver sus ventas o citas. Solo abre la aplicación de Google Sheets en su teléfono móvil y ve los registros en tiempo real.<br/>
-          ° <strong>Velocidad y Ligereza:</strong> Al no depender de sistemas pesados como WordPress, una página construida con HTML5 y Bootstrap carga de forma casi instantánea. Esto mejora drásticamente la retención de usuarios en teléfonos móviles con conexiones lentas.<br/>
-          ° <strong>Gráficos en Tiempo Real:</strong> Puedes crear gráficos de barras, líneas o pastel que se alimenten de la hoja principal del excel. Lo mejor es que se actualizan solos cada vez que un nuevo usuario llena el formulario en la Landing Page.</p>
-          <br/>
-          <h3>¿Qué tipos de negocios pueden operar así?</h3>
-          <p>Cualquier proyecto que requiera capturar datos de usuarios, mostrar un catálogo sencillo o gestionar agendas sin la complejidad de procesar miles de transacciones por segundo.</p>
-          <p>° <strong>Servicios Locales y Profesionales Autónomos:</strong> Consultorios médicos, psicólogos, barberías, salones de belleza o entrenadores personales. La Landing Page muestra los servicios y un formulario conecta con la hoja de cálculo para gestionar citas o reservas.<br/>
-          ° <strong>Venta de Productos Únicos o Catálogos Pequeños:</strong> Tiendas de repostería artesanal, lanzamientos de libros, preventas de productos o dropshipping de nicho. JavaScript lee las filas de tu hoja de cálculo para mostrar los productos disponibles (imagen, precio, stock) y el formulario envía los pedidos de los clientes directamente a otra pestaña.<br/>
-          ° <strong>Captación de Clientes Potenciales (Lead Generation):</strong> Agencias inmobiliarias locales, cotizadores de seguros o servicios de mudanzas. El usuario deja sus datos de contacto y requerimientos en la web, y estos caen directamente al Excel en la nube para que el equipo comercial los llame.<br/>
-          ° <strong>Eventos y Cursos:</strong> Registro para talleres, conferencias locales, bodas o fiestas. Sirve para confirmar asistencia o vender entradas recopilando los datos de los asistentes de manera organizada.</p>
-              </div>
-            ) : (
-              <div dangerouslySetInnerHTML={{ __html: productoSeleccionado.descriptionHtml }} />
-            )}
-            <button onClick={() => { handleAgregarAlCarrito(productoSeleccionado, productoSeleccionado.variants?.edges?.[0]?.node?.id); setProductoSeleccionado(null); }} style={{ marginTop: '20px', backgroundColor: '#000', color: '#fff', width: '100%', padding: '14px', borderRadius: '10px', border: 'none', cursor: 'pointer' }}>Añadir a bolsa</button>
-          </div>
-        </div>
-      )}
 
       <style jsx global>{`
         .bolsa-productos-scroll { scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
