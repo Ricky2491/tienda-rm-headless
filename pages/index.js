@@ -143,8 +143,6 @@ export default function Home({ products = [] }) {
             <h2 style={{ margin: 0, fontSize: '1.3rem' }}>Tu bolsa de compras</h2>
             <button onClick={() => setCarritoAbierto(false)} style={{ background: '#f5f5f7', border: 'none', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer' }}>✕</button>
           </div>
-          
-          {/* AQUÍ ESTÁ LA CORRECCIÓN: Todo el contenido va dentro de este scrollable div */}
           <div className="bolsa-productos-scroll" style={{ flexGrow: 1, overflowY: 'auto', padding: '10px 2px', minHeight: 0 }}>
             {carrito.length === 0 ? (
               <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#86868b' }}>Carrito vacío.</div>
@@ -164,18 +162,11 @@ export default function Home({ products = [] }) {
                     </div>
                   </div>
                 ))}
-
-                {/* FORMULARIO Y PAGOS DENTRO DEL SCROLL */}
                 <div style={{ marginTop: '20px', paddingTop: '16px' }}>
                   <input type="text" placeholder="Nombre" id="cliente_nombre" style={{ width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #d2d2d7' }} />
                   <input type="text" placeholder="Apellido" id="cliente_apellido" style={{ width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #d2d2d7' }} />
                   <input type="tel" placeholder="Teléfono" id="cliente_telefono" style={{ width: '100%', padding: '10px', marginBottom: '16px', borderRadius: '8px', border: '1px solid #d2d2d7' }} />
-                  
-                  <button onClick={handleProcesarPagoWhatsApp} style={{ backgroundColor: '#00cc66', color: '#fff', width: '100%', padding: '13px', borderRadius: '10px', border: 'none', marginBottom: '14px', cursor: 'pointer' }}>
-                    Confirmar Pedido por WhatsApp
-                  </button>
-
-                  {/* El contenedor PayPal está ahora DENTRO del área scrollable */}
+                  <button onClick={handleProcesarPagoWhatsApp} style={{ backgroundColor: '#00cc66', color: '#fff', width: '100%', padding: '13px', borderRadius: '10px', border: 'none', marginBottom: '14px', cursor: 'pointer' }}>Confirmar Pedido por WhatsApp</button>
                   <div id="contenedor-botones-paypal" style={{ minHeight: '150px', width: '100%' }}></div>
                 </div>
               </>
@@ -184,20 +175,46 @@ export default function Home({ products = [] }) {
         </div>
       )}
 
-      {/* CUERPO CENTRAL */}
       <div style={{ padding: '40px 24px', maxWidth: '1200px', margin: '0 auto' }}>
         <div className="products-grid">
           {productosOrdenados.map((product) => (
-            <div key={product.id} className="product-card" style={{ backgroundColor: '#fff', padding: '16px', borderRadius: '16px', border: '1px solid #f0f0f0' }}>
+            <div key={product.id} className="product-card" onClick={() => setProductoSeleccionado(product)} style={{ backgroundColor: '#fff', padding: '16px', borderRadius: '16px', border: '1px solid #f0f0f0', cursor: 'pointer' }}>
               <div style={{ height: '240px', backgroundColor: '#fbfbfd', marginBottom: '16px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <img src={product.images?.edges?.[0]?.node?.url} style={{ height: '100%', objectFit: 'contain' }} />
               </div>
               <h3>{product.title}</h3>
-              <button onClick={() => handleAgregarAlCarrito(product, product.variants?.edges?.[0]?.node?.id)} style={{ backgroundColor: '#000', color: '#fff', padding: '10px 18px', borderRadius: '10px', border: 'none', cursor: 'pointer' }}>Añadir a bolsa</button>
+              <button onClick={(e) => { e.stopPropagation(); handleAgregarAlCarrito(product, product.variants?.edges?.[0]?.node?.id); }} style={{ backgroundColor: '#000', color: '#fff', padding: '10px 18px', borderRadius: '10px', border: 'none', cursor: 'pointer' }}>Añadir a bolsa</button>
             </div>
           ))}
         </div>
       </div>
+
+      {productoSeleccionado && (
+        <div onClick={() => setProductoSeleccionado(null)} style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100dvh', backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(5px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 300, padding: '20px' }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ backgroundColor: '#fff', borderRadius: '20px', maxWidth: '600px', width: '100%', maxHeight: '80vh', overflowY: 'auto', padding: '30px', position: 'relative' }}>
+            <button onClick={() => setProductoSeleccionado(null)} style={{ position: 'absolute', top: '20px', right: '20px', background: '#f5f5f7', border: 'none', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer' }}>✕</button>
+            <h2 style={{ fontSize: '1.6rem', marginBottom: '20px' }}>{productoSeleccionado.title}</h2>
+            {productoSeleccionado.title === 'Landing Page Responsive' ? (
+              <div style={{ fontSize: '0.95rem', lineHeight: '1.6', color: '#333' }}>
+                <p>Tu negocio merece una Landing Page interactiva y responsiva que trabaje para ti las 24 horas.</p>
+                <p><strong>Lenguajes:</strong> Html5 - Css3 - JavaScript - Bootstrap.</p>
+                <p><strong>Alojamiento Web (Hosting) y Despliegue:</strong> El costo base por el desarrollo del proyecto es de $30.00 (pago único). Para la puesta en línea de la plataforma, disponemos de las siguientes modalidades de hosting:</p>
+                <ul>
+                  <li><strong>Alojamiento Externo:</strong> Si usted ya cuenta con un proveedor de hosting o prefiere adquirirlo por su cuenta el costo del proyecto será solo de 30$.</li>
+                  <li><strong>Alojamiento Gestionado:</strong> Si prefiere que la infraestructura corra por mi cuenta, el servicio tendrá un costo operativo adicional de $10.00 mensuales.</li>
+                  <li><strong>Alojamiento Temporal:</strong> Para proyectos con una fecha de caducidad definida.</li>
+                </ul>
+                <p><strong>Link web ejemplo:</strong> <a href="https://perlacargocorp.netlify.app/" target="_blank">https://perlacargocorp.netlify.app/</a></p>
+                <p><strong>Usuario:</strong> rm | <strong>Password:</strong> 1234</p>
+                <p><strong>Portafolio:</strong> <a href="https://rm-portafolioresponsive.netlify.app/" target="_blank">https://rm-portafolioresponsive.netlify.app/</a></p>
+              </div>
+            ) : (
+              <div dangerouslySetInnerHTML={{ __html: productoSeleccionado.descriptionHtml }} />
+            )}
+            <button onClick={() => { handleAgregarAlCarrito(productoSeleccionado, productoSeleccionado.variants?.edges?.[0]?.node?.id); setProductoSeleccionado(null); }} style={{ marginTop: '20px', backgroundColor: '#000', color: '#fff', width: '100%', padding: '14px', borderRadius: '10px', border: 'none', cursor: 'pointer' }}>Añadir a bolsa</button>
+          </div>
+        </div>
+      )}
 
       <style jsx global>{`
         .bolsa-productos-scroll { scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
