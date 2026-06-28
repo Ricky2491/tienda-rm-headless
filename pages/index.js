@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
+import Script from 'next/script';
 // Se importa 'createCheckout' adaptado para recibir el lote completo de productos
 import { getAllProducts, createCheckout } from '../utils/shopify';
 
@@ -90,34 +91,36 @@ export default function Home({ products = [] }) {
   const subtotalPrecio = carrito.reduce((sum, item) => sum + parseFloat(item.price?.amount || 0) * item.cantidad, 0);
   const codigoMoneda = carrito[0]?.price?.currencyCode || 'USD';
 
-  // Generar la sesión transaccional unificada con métodos de pago reales de Shopify
-  const handleProcederAlPagoUnificado = async () => {
-    if (carrito.length === 0) return;
+  // LÓGICA REEMPLAZADA: Procesar el pedido de manera manual e independiente vía WhatsApp
+  const handleProcesarPagoWhatsApp = () => {
+    const nombre = document.getElementById('cliente_nombre')?.value.trim();
+    const apellido = document.getElementById('cliente_apellido')?.value.trim();
+    const telefonoCliente = document.getElementById('cliente_telefono')?.value.trim();
 
-    try {
-      setComprando(true);
-
-      // Mapeamos los elementos de nuestro carrito al formato nativo exigido por la API de Shopify
-      const lineasCheckout = carrito.map((item) => ({
-        merchandiseId: item.variantId,
-        quantity: parseInt(item.cantidad, 10),
-      }));
-
-      // Invocamos la mutación unificada de lote
-      const checkout = await createCheckout(lineasCheckout);
-
-      if (checkout && checkout.webUrl) {
-        // Redirección directa hacia la pasarela global de tu pasarela con opciones plenas de pago
-        window.location.href = checkout.webUrl;
-      } else {
-        alert("No se pudo estructurar el enlace transaccional unificado.");
-      }
-    } catch (error) {
-      console.error("Error procesando pago unificado:", error);
-      alert("Hubo un inconveniente al conectar con el sistema de pagos.");
-    } finally {
-      setComprando(false);
+    if (!nombre || !apellido || !telefonoCliente) {
+      alert("Por favor, completa tu Nombre, Apellido y Teléfono para procesar el pedido.");
+      return;
     }
+
+    const tuTelefonoWhatsApp = "584120000000"; // Tu número de atención
+
+    let mensaje = `🔔 *NUEVO PEDIDO - TIENDA RM*\n\n`;
+    mensaje += `👤 *Cliente:* ${nombre} ${apellido}\n`;
+    mensaje += `📞 *Contacto:* ${telefonoCliente}\n`;
+    mensaje += `📦 *Método de Pago:* Pago Móvil / Transferencia Bancaria\n`;
+    mensaje += `⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n`;
+    mensaje += `🛒 *Detalle de la compra:*\n`;
+
+    carrito.forEach((item) => {
+      mensaje += `• ${item.title} x${item.cantidad} — (${parseFloat(item.price?.amount).toFixed(2)} ${item.price?.currencyCode} c/u)\n`;
+    });
+
+    mensaje += `\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n`;
+    mensaje += `💰 *TOTAL A PAGAR:* ${subtotalPrecio.toFixed(2)} ${codigoMoneda}\n\n`;
+    mensaje += `📌 _Por favor, indícanos los datos de tu Pago Móvil o el número de referencia para validar tu pago y procesar tu orden inmediatamente._`;
+
+    const urlFinal = `https://wa.me/${tuTelefonoWhatsApp}?text=${encodeURIComponent(mensaje)}`;
+    window.location.href = urlFinal;
   };
 
   return (
@@ -289,32 +292,99 @@ export default function Home({ products = [] }) {
             )}
           </div>
 
-          {/* Bloque de Cierre de Caja Unificado */}
+          {/* Bloque de Formulario y Cierre de Caja Independiente */}
           {carrito.length > 0 && (
             <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: '16px', backgroundColor: '#fff', flexShrink: 0, marginTop: 'auto' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '18px', fontSize: '1.1rem', fontWeight: '700' }}>
+              
+              {/* FORMULARIO DE CLIENTE INTEGRADO */}
+              <div style={{ marginBottom: '16px' }}>
+                <h4 style={{ margin: '0 0 12px 0', fontSize: '0.85rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Datos del Comprador</h4>
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Nombre" 
+                    id="cliente_nombre"
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #d2d2d7', fontSize: '0.9rem', boxSizing: 'border-box' }} 
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Apellido" 
+                    id="cliente_apellido"
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #d2d2d7', fontSize: '0.9rem', boxSizing: 'border-box' }} 
+                  />
+                </div>
+                <input 
+                  type="tel" 
+                  placeholder="Teléfono de contacto" 
+                  id="cliente_telefono"
+                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #d2d2d7', fontSize: '0.9rem', boxSizing: 'border-box' }} 
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '14px', fontSize: '1.1rem', fontWeight: '700' }}>
                 <span>Subtotal:</span>
                 <span>{subtotalPrecio.toFixed(2)} {codigoMoneda}</span>
               </div>
+
+              {/* MÉTODO 1: WhatsApp (Pago Móvil / Transferencia) */}
               <button 
-                onClick={handleProcederAlPagoUnificado}
-                disabled={comprando}
+                onClick={handleProcesarPagoWhatsApp}
                 style={{ 
-                  backgroundColor: comprando ? '#555555' : '#0066cc', 
+                  backgroundColor: '#00cc66', 
                   color: '#fff', 
                   border: 'none', 
-                  padding: '15px', 
-                  borderRadius: '12px', 
+                  padding: '13px', 
+                  borderRadius: '10px', 
                   width: '100%', 
-                  fontSize: '0.95rem', 
+                  fontSize: '0.92rem', 
                   fontWeight: '600', 
-                  cursor: comprando ? 'not-allowed' : 'pointer',
+                  cursor: 'pointer',
                   transition: 'background-color 0.2s ease',
+                  marginBottom: '10px',
                   WebkitAppearance: 'none'
                 }}
               >
-                {comprando ? 'Conectando a caja...' : 'Proceder al pago'}
+                Confirmar Pedido por WhatsApp
               </button>
+
+              {/* MÉTODO 2: Carga dinámica e inyección de Botones de PayPal */}
+              <Script 
+                src="https://www.paypal.com/sdk/js?client-id=AQ5O_YOUR_REAL_CLIENT_ID_HERE&currency=USD"
+                strategy="lazyOnload"
+                onLoad={() => {
+                  if (window.paypal) {
+                    // Limpieza previa del contenedor para prevenir duplicados durante re-renders
+                    const contenedor = document.getElementById('contenedor-botones-paypal');
+                    if (contenedor) contenedor.innerHTML = '';
+
+                    window.paypal.Buttons({
+                      createOrder: (data, actions) => {
+                        return actions.order.create({
+                          purchase_units: [{
+                            description: "Compra unificada en Tienda RM",
+                            amount: {
+                              currency_code: codigoMoneda || "USD",
+                              value: subtotalPrecio.toFixed(2)
+                            }
+                          }]
+                        });
+                      },
+                      onApprove: async (data, actions) => {
+                        const order = await actions.order.capture();
+                        alert(`¡Pago procesado con éxito! Gracias por tu compra, ${order.payer.name.given_name}.`);
+                        setCarrito([]);
+                        setCarritoAbierto(false);
+                      },
+                      onError: (err) => {
+                        console.error("Error en la pasarela de PayPal:", err);
+                        alert("Hubo un inconveniente al procesar la transacción con PayPal.");
+                      }
+                    }).render('#contenedor-botones-paypal');
+                  }
+                }}
+              />
+              <div id="contenedor-botones-paypal" style={{ minHeight: '100px', marginTop: '4px' }}></div>
+
             </div>
           )}
         </div>
@@ -452,9 +522,9 @@ export default function Home({ products = [] }) {
               maxHeight: '85vh',
               overflowY: 'auto',
               padding: '32px',
+              boxSizing: 'border-box',
               boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
-              position: 'relative',
-              boxSizing: 'border-box'
+              position: 'relative'
             }}
           >
             <button 
