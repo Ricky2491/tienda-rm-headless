@@ -232,8 +232,8 @@ export default function Home({ products = [] }) {
       <div style={{ background: '#f5f5f5', padding: '15px', borderRadius: '10px' }}>
         <p>Escanea este QR o usa mi Pay ID</p>
         {/* Aquí deberás poner la URL de tu imagen QR o componente */}
-        <img src="/tu-qr-binance.jpg" alt="QR Binance" style={{ width: '150px', margin: '10px 0' }} />
-        <p style={{ fontWeight: 'bold' }}>Pay ID: 123456789</p>
+        <img src="../imagenes/QR_Binance.jpeg" alt="QR Binance" style={{ width: '150px', margin: '10px 0' }} />
+        <p style={{ fontWeight: 'bold' }}>Pay ID: 1257177090</p>
       </div>
       <button onClick={() => { setBinanceAbierto(false); setConfirmarPagoAbierto(true); }} style={{ marginTop: '20px', backgroundColor: '#000', color: '#fff', width: '100%', padding: '12px', borderRadius: '10px', border: 'none' }}>
         Confirmar pago realizado
