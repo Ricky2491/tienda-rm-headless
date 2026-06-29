@@ -189,14 +189,7 @@ export default function Home({ products = [] }) {
 
                   {/* El contenedor PayPal está ahora DENTRO del área scrollable */}
                   <div id="contenedor-botones-paypal" style={{ minHeight: '150px', width: '100%' }}></div>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* BOTÓN BINANCE */}
+                  {/* BOTÓN BINANCE */}
 <button 
   onClick={() => setBinanceAbierto(true)}
   style={{ backgroundColor: '#F3BA2F', color: '#000', width: '100%', padding: '13px', borderRadius: '10px', border: 'none', marginTop: '10px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
@@ -244,6 +237,14 @@ export default function Home({ products = [] }) {
     </div>
   </div>
 )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+
 
       {/* CUERPO CENTRAL */}
       <div style={{ padding: '40px 24px', maxWidth: '1200px', margin: '0 auto' }}>
