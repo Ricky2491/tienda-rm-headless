@@ -189,12 +189,33 @@ export default function Home({ products = [] }) {
 
                   {/* El contenedor PayPal está ahora DENTRO del área scrollable */}
                   <div id="contenedor-botones-paypal" style={{ minHeight: '150px', width: '100%' }}></div>
-                  {/* BOTÓN BINANCE */}
+                  
+                  {/* BOTÓN BINANCE CON ICONO REAL */}
 <button 
   onClick={() => setBinanceAbierto(true)}
-  style={{ backgroundColor: '#F3BA2F', color: '#000', width: '100%', padding: '13px', borderRadius: '10px', border: 'none', marginTop: '10px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+  style={{ 
+    backgroundColor: '#F3BA2F', 
+    color: '#000', 
+    width: '100%', 
+    padding: '13px', 
+    borderRadius: '10px', 
+    border: 'none', 
+    marginTop: '10px', 
+    cursor: 'pointer', 
+    fontWeight: 'bold', 
+    display: 'flex', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    gap: '10px',
+    fontSize: '1rem'
+  }}
 >
-  💰 Pagar con Binance Pay
+  <img 
+    src="https://cryptologos.cc/logos/binance-coin-bnb-logo.png" 
+    alt="Binance Logo" 
+    style={{ width: '22px', height: '22px', objectFit: 'contain' }} 
+  />
+  Pagar con Binance Pay
 </button>
 
 {/* MODAL 1: QR Y DATOS */}
