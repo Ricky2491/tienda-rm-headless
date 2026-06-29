@@ -232,7 +232,7 @@ export default function Home({ products = [] }) {
       <div style={{ background: '#f5f5f5', padding: '15px', borderRadius: '10px' }}>
         <p>Escanea este QR o usa mi Pay ID</p>
         {/* Aquí deberás poner la URL de tu imagen QR o componente */}
-        <img src="../imagenes/QR_Binance.jpeg" alt="QR Binance" style={{ width: '150px', margin: '10px 0' }} />
+        <img src="/imagenes/QR_Binance.jpeg" alt="QR Binance" style={{ width: '150px', margin: '10px 0' }} />
         <p style={{ fontWeight: 'bold' }}>Pay ID: 1257177090</p>
       </div>
       <button onClick={() => { setBinanceAbierto(false); setConfirmarPagoAbierto(true); }} style={{ marginTop: '20px', backgroundColor: '#000', color: '#fff', width: '100%', padding: '12px', borderRadius: '10px', border: 'none' }}>
@@ -255,7 +255,7 @@ export default function Home({ products = [] }) {
           const txid = document.getElementById('binance_txid').value;
           const monto = document.getElementById('binance_monto').value;
           const mensaje = `Hola, realicé un pago por Binance. TXID: ${txid}, Monto: ${monto}`;
-          window.location.href = `https://wa.me/584241721194?text=${encodeURIComponent(mensaje)}`;
+          window.location.href = `https://wa.me/584241781194?text=${encodeURIComponent(mensaje)}`;
         }}
         style={{ backgroundColor: '#00cc66', color: '#fff', width: '100%', padding: '12px', borderRadius: '10px', border: 'none' }}
       >
