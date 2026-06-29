@@ -308,10 +308,16 @@ export default function Home({ products = [] }) {
                 <p><strong>Alojamiento Web (Hosting) y Despliegue:</strong> El costo base por el desarrollo del proyecto es de $30.00 (pago único). Para la puesta en línea de la plataforma, disponemos de las siguientes modalidades de hosting:</p>
                 <ul>
                   <li><strong>Alojamiento Externo:</strong> Si usted ya cuenta con un proveedor de hosting o prefiere adquirirlo por su cuenta el costo del proyecto será solo de 30$.</li>
-                  <li><strong>Alojamiento Gestionado:</strong> Si prefiere que la infraestructura corra por mi cuenta, el servicio tendrá un costo operativo adicional de $10.00 mensuales.</li>
-                  <li><strong>Alojamiento Temporal:</strong> Para proyectos con una fecha de caducidad definida.</li>
+                  <li><strong>Alojamiento Gestionado (Proyectos Continuos):</strong> Si prefiere que la infraestructura corra por mi cuenta, el servicio tendrá un costo operativo adicional de $10.00 mensuales.</li>
+                  <li><strong>Alojamiento Temporal (Eventos Específicos):</strong> Para proyectos con una fecha de caducidad definida (por ejemplo, un evento de dos días), puedo proporcionar el hosting de manera exclusiva por el período que dure la actividad. Una vez finalizado el evento, se procederá a la desactivación programada del sitio web, optimizando así sus costos.</li>
+                </ul>
+                <ul>
+                <li><strong>Dominio personalizado:</strong> No incluye</li>
+                <li><strong>Diseño y estructura de la web:</strong> se dialoga con el cliente antes de iniciar el proyecto.</li>
+                <li><strong>Base de Datos:</strong> Excel (Google Drive) Permite que cualquier miembro del equipo visualice y gestione datos estratégicos de forma intuitiva, sin necesidad de conocimientos técnicos.</li>
                 </ul>
                 <p><strong>Link web ejemplo:</strong> <a href="https://perlacargocorp.netlify.app/" target="_blank">https://perlacargocorp.netlify.app/</a></p>
+                <p>El usuario y password que adjunto a continuación pertenecen a la web Perla Cargo Corp y es para poder ver como se almacenan los registros y las diferentes funciones de aprobar, editar o eliminar un registro realizado.</p>
                 <p><strong>Usuario:</strong> rm | <strong>Password:</strong> 1234</p>
                 <p><strong>Portafolio:</strong> <a href="https://rm-portafolioresponsive.netlify.app/" target="_blank">https://rm-portafolioresponsive.netlify.app/</a></p>
                 <br/>
