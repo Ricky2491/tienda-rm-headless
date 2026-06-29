@@ -210,11 +210,10 @@ export default function Home({ products = [] }) {
     fontSize: '1rem'
   }}
 >
-  <img 
-    src="https://cryptologos.cc/logos/binance-coin-bnb-logo.png" 
-    alt="Binance Logo" 
-    style={{ width: '22px', height: '22px', objectFit: 'contain' }} 
-  />
+  {/* Icono de Binance en SVG incrustado (no falla) */}
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 1L3.5 9.5L12 18L20.5 9.5L12 1ZM12 14.5L8.5 11L12 7.5L15.5 11L12 14.5ZM12 23L20.5 14.5L18 12L12 18L6 12L3.5 14.5L12 23Z" fill="black"/>
+  </svg>
   Pagar con Binance Pay
 </button>
 
