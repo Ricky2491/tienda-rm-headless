@@ -189,13 +189,13 @@ export default function Home({ products = [] }) {
 
                   {/* El contenedor PayPal está ahora DENTRO del área scrollable */}
                   <div id="contenedor-botones-paypal" style={{ minHeight: '150px', width: '100%' }}></div>
-                  
+
                   {/* BOTÓN BINANCE CON ICONO REAL */}
 <button 
   onClick={() => setBinanceAbierto(true)}
   style={{ 
-    backgroundColor: '#F3BA2F', 
-    color: '#000', 
+    backgroundColor: '#000000', 
+    color: '#fdfdfd', 
     width: '100%', 
     padding: '13px', 
     borderRadius: '10px', 
@@ -212,7 +212,7 @@ export default function Home({ products = [] }) {
 >
   {/* Icono de Binance en SVG incrustado (no falla) */}
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 1L3.5 9.5L12 18L20.5 9.5L12 1ZM12 14.5L8.5 11L12 7.5L15.5 11L12 14.5ZM12 23L20.5 14.5L18 12L12 18L6 12L3.5 14.5L12 23Z" fill="black"/>
+    <path d="M12 1L3.5 9.5L12 18L20.5 9.5L12 1ZM12 14.5L8.5 11L12 7.5L15.5 11L12 14.5ZM12 23L20.5 14.5L18 12L12 18L6 12L3.5 14.5L12 23Z" fill="#805e00"/>
   </svg>
   Pagar con Binance Pay
 </button>
