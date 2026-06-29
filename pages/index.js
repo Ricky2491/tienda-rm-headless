@@ -11,6 +11,8 @@ export default function Home({ products = [] }) {
     const [cantidadesSelector, setCantidadesSelector] = useState({});
     const [productoSeleccionado, setProductoSeleccionado] = useState(null);
     const [paypalListo, setPaypalListo] = useState(false);
+    const [binanceAbierto, setBinanceAbierto] = useState(false);
+    const [confirmarPagoAbierto, setConfirmarPagoAbierto] = useState(false);
 
     const productosOrdenados = [...products].sort((a, b) => {
         if (a.title === 'Landing Page Responsive') return -1;
@@ -89,7 +91,7 @@ export default function Home({ products = [] }) {
             return;
         }
 
-        const tuTelefonoWhatsApp = "584120000000";
+        const tuTelefonoWhatsApp = "584241781194";
         let mensaje = `🔔 *NUEVO PEDIDO - TIENDA RM*\n\n👤 *Cliente:* ${nombre} ${apellido}\n📞 *Contacto:* ${telefonoCliente}\n📦 *Método de Pago:* Pago Móvil / Transferencia Bancaria\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n🛒 *Detalle de la compra:*\n`;
         carrito.forEach((item) => {
             mensaje += `• ${item.title} x${item.cantidad} — (${parseFloat(item.price?.amount).toFixed(2)} ${item.price?.currencyCode} c/u)\n`;
@@ -193,6 +195,55 @@ export default function Home({ products = [] }) {
           </div>
         </div>
       )}
+
+      {/* BOTÓN BINANCE */}
+<button 
+  onClick={() => setBinanceAbierto(true)}
+  style={{ backgroundColor: '#F3BA2F', color: '#000', width: '100%', padding: '13px', borderRadius: '10px', border: 'none', marginTop: '10px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+>
+  💰 Pagar con Binance Pay
+</button>
+
+{/* MODAL 1: QR Y DATOS */}
+{binanceAbierto && (
+  <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100dvh', backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999, padding: '20px' }}>
+    <div style={{ backgroundColor: '#fff', borderRadius: '20px', padding: '30px', maxWidth: '350px', width: '100%', textAlign: 'center' }}>
+      <h3>Binance Pay</h3>
+      <div style={{ background: '#f5f5f5', padding: '15px', borderRadius: '10px' }}>
+        <p>Escanea este QR o usa mi Pay ID</p>
+        {/* Aquí deberás poner la URL de tu imagen QR o componente */}
+        <img src="/tu-qr-binance.jpg" alt="QR Binance" style={{ width: '150px', margin: '10px 0' }} />
+        <p style={{ fontWeight: 'bold' }}>Pay ID: 123456789</p>
+      </div>
+      <button onClick={() => { setBinanceAbierto(false); setConfirmarPagoAbierto(true); }} style={{ marginTop: '20px', backgroundColor: '#000', color: '#fff', width: '100%', padding: '12px', borderRadius: '10px', border: 'none' }}>
+        Confirmar pago realizado
+      </button>
+      <button onClick={() => setBinanceAbierto(false)} style={{ background: 'none', border: 'none', marginTop: '10px', color: '#888' }}>Cerrar</button>
+    </div>
+  </div>
+)}
+
+{/* MODAL 2: FORMULARIO */}
+{confirmarPagoAbierto && (
+  <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100dvh', backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999, padding: '20px' }}>
+    <div style={{ backgroundColor: '#fff', borderRadius: '20px', padding: '30px', maxWidth: '350px', width: '100%' }}>
+      <h3>Datos del Pago</h3>
+      <input type="text" id="binance_txid" placeholder="ID de Transacción (TXID)" style={{ width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #ddd' }} />
+      <input type="text" id="binance_monto" placeholder="Monto enviado" style={{ width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #ddd' }} />
+      <button 
+        onClick={() => {
+          const txid = document.getElementById('binance_txid').value;
+          const monto = document.getElementById('binance_monto').value;
+          const mensaje = `Hola, realicé un pago por Binance. TXID: ${txid}, Monto: ${monto}`;
+          window.location.href = `https://wa.me/584241721194?text=${encodeURIComponent(mensaje)}`;
+        }}
+        style={{ backgroundColor: '#00cc66', color: '#fff', width: '100%', padding: '12px', borderRadius: '10px', border: 'none' }}
+      >
+        Enviar datos por WhatsApp
+      </button>
+    </div>
+  </div>
+)}
 
       {/* CUERPO CENTRAL */}
       <div style={{ padding: '40px 24px', maxWidth: '1200px', margin: '0 auto' }}>
